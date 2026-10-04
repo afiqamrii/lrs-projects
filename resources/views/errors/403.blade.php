@@ -1,0 +1,1 @@
+@extends('errors.layout') @section('title','This area needs admin access') @section('code','403') @section('message','Your account does not have permission for this action. You can continue maintaining the vendor directory, or contact your administrator for access.')

@@ -1,0 +1,3 @@
+@if(session('status'))<div class="alert alert-success mb-6" role="status"><x-icon name="check-circle" /><div>{{ session('status') }}</div></div>@endif
+@if(session('warning'))<div class="alert alert-warning mb-6" role="status"><x-icon name="warning-circle" /><div>{{ session('warning') }}</div></div>@endif
+@if($errors->any())<div class="alert alert-error mb-6" role="alert"><x-icon name="warning-circle" /><div><p class="font-semibold">Please review the information below.</p><ul class="mt-1 list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div></div>@endif

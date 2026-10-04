@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'version' => 'local-text-1',
+    'pdftotext' => env('EXTRACTION_PDFTOTEXT', 'pdftotext'),
+    'pdfinfo' => env('EXTRACTION_PDFINFO', 'pdfinfo'),
+    'pdftoppm' => env('EXTRACTION_PDFTOPPM', 'pdftoppm'),
+    'tesseract' => env('EXTRACTION_TESSERACT', 'tesseract'),
+    'languages' => env('EXTRACTION_OCR_LANGUAGES', 'eng'),
+    'tessdata' => env('EXTRACTION_TESSDATA'),
+    'pages' => (int) env('EXTRACTION_MAX_PAGES', 20),
+    'pixels' => (int) env('EXTRACTION_MAX_PIXELS', 12000000),
+    'text_chars' => (int) env('EXTRACTION_MAX_TEXT_CHARS', 200000),
+    'rows' => (int) env('EXTRACTION_MAX_ROWS', 500),
+    'cells' => (int) env('EXTRACTION_MAX_CELLS', 5000),
+    'sheets' => (int) env('EXTRACTION_MAX_SHEETS', 10),
+    'archive_bytes' => (int) env('EXTRACTION_MAX_ARCHIVE_BYTES', 104857600),
+    'entry_bytes' => (int) env('EXTRACTION_MAX_ENTRY_BYTES', 20971520),
+    'archive_ratio' => 100,
+    'archive_entries' => 2000,
+    'memory_mb' => (int) env('EXTRACTION_MEMORY_MB', 256),
+    'tool_timeout' => (int) env('EXTRACTION_TOOL_TIMEOUT', 45),
+    'run_timeout' => (int) env('EXTRACTION_RUN_TIMEOUT', 300),
+    'demo' => (bool) env('EXTRACTION_DEMO_ENABLED', false),
+];

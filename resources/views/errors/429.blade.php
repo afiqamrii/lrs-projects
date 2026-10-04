@@ -1,0 +1,1 @@
+@extends('errors.layout') @section('title','Please try again shortly') @section('code','429') @section('message','Too many attempts were made in a short time. Wait a minute before trying again. Contact your administrator if you need help signing in.')

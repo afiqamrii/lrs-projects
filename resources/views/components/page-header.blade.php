@@ -1,0 +1,2 @@
+@props(['title','description' => '', 'eyebrow' => 'Workspace'])
+<div class="mb-8 flex flex-wrap items-start justify-between gap-5"><div class="min-w-0"><p class="eyebrow mb-2.5">{{ $eyebrow }}</p><h1 class="text-[30px] leading-tight tracking-[-0.035em] sm:text-[36px]">{{ $title }}</h1>@if($description)<p class="mt-3 max-w-2xl text-sm leading-6 text-slate-500">{{ $description }}</p>@endif</div><div class="flex flex-wrap gap-2 sm:pt-7">{{ $slot }}</div></div>

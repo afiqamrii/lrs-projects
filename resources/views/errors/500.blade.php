@@ -1,0 +1,1 @@
+@extends('errors.layout') @section('title','Something interrupted this request') @section('code','500') @section('message','The workspace could not complete this request. Please try again shortly. If the problem continues, contact your administrator with the time and action you attempted.')

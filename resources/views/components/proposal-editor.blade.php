@@ -1,0 +1,11 @@
+@props(['candidate'])
+@php $id=$candidate['id']; $field=$candidate['field']; $name='decisions['.$id.'][value]'; $value=$candidate['value']; $enums=['mode'=>['unknown'=>'Unknown','LCL'=>'LCL','FCL'=>'FCL'],'scope'=>\App\Support\Shipment::SCOPES]; @endphp
+@if(in_array($field,['packages','containers'],true))
+<div class="space-y-4">@foreach(array_slice(is_array($value)?$value:[],0,20) as $index=>$row)<fieldset class="rounded-xl border border-slate-200 p-4"><legend class="px-2 text-xs font-medium">{{ $field==='packages'?'Package group':'Container row' }} {{ $index+1 }}</legend><div class="grid gap-4 sm:grid-cols-2">@foreach($row as $key=>$item)<x-field :name="$name.'['.$index.']['.$key.']'" :label="ucfirst(str_replace('_',' ',$key))" :value="$item??''" :maxlength="in_array($key,['packaging_type','type'],true)?80:20" />@endforeach</div></fieldset>@endforeach</div><p class="hint">Keep row-total gross weights and per-package dimensions explicit. Enter ISO units (kg/t/lb, mm/cm/m/in); unknown stays empty. For adding rows, use the working shipment editor.</p>
+@elseif(in_array($field,['services','special_flags'],true))
+<div class="grid gap-3 sm:grid-cols-2">@foreach($field==='services'?\App\Support\Shipment::SERVICES:\App\Support\Shipment::SPECIAL as $key=>$label)<label class="flex items-center gap-3 text-xs"><input type="checkbox" name="{{ $name }}[]" value="{{ $key }}" @checked(in_array($key,old('decisions.'.$id.'.value',is_array($value)?$value:[])??[],true))>{{ $label }}</label>@endforeach</div>
+@elseif(isset($enums[$field]))
+<x-field :name="$name" label="Corrected value" type="select">@foreach($enums[$field] as $key=>$label)<option value="{{ $key }}" @selected(old('decisions.'.$id.'.value',$value)===$key)>{{ $label }}</option>@endforeach</x-field>
+@else
+<x-field :name="$name" label="Corrected value" :type="in_array($field,['cargo_ready_date','arrival_date'],true)?'date':(in_array($field,['cargo_description','pickup_address','delivery_address','special_notes'],true)?'textarea':'text')" :value="is_array($value)?'':($value??'')" maxlength="4000" hint="Only used for Correct and accept. Money/measurements use decimal digits; dates YYYY-MM-DD and currencies explicit ISO codes." />
+@endif

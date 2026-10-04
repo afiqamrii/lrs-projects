@@ -1,0 +1,1 @@
+<a href="{{ auth()->check() ? route('overview') : route('login') }}" class="brand" aria-label="LRS home"><span class="brand-mark" aria-hidden="true"></span><span class="text-[25px] font-semibold tracking-tight leading-none">LRS<span class="mt-1.5 block text-[11px] font-medium tracking-normal text-slate-500">Logistics workspace</span></span></a>

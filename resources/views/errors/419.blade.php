@@ -1,0 +1,1 @@
+@extends('errors.layout') @section('title','Your session needs a refresh') @section('code','419') @section('message','Your session expired before the form was submitted. Return to the workspace, sign in if needed, and try again.')

@@ -1,0 +1,1 @@
+@extends('errors.layout') @section('title','We could not find that record') @section('code','404') @section('message','The address may be incorrect or the record is unavailable. Return to the workspace and find it in your directory.')
