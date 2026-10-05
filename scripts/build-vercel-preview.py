@@ -41,8 +41,13 @@ SEEDS = [
 
 PREVIEW_JS = """
 (() => {
-  const publicLink = document.querySelector('#public-inquiry-link');
-  if (publicLink) publicLink.value = location.origin + '/request-quote';
+  const publicLink = document.querySelector('#customer-inquiry-link');
+  if (publicLink) {
+    publicLink.value = location.origin + '/request-quote';
+    publicLink.dataset.scope = 'Read-only public form preview; no submission is created.';
+    const hint = document.querySelector('[data-public-link-hint]');
+    if (hint) hint.textContent = 'This link previews the customer form. It does not receive requests in the sharing demo.';
+  }
   const notice = document.getElementById('lrs-preview-notice');
   const message = notice.querySelector('[data-preview-message]');
   function show(text, trigger) {
@@ -80,7 +85,7 @@ PREVIEW_CSS = """
 .lrs-preview-auth{flex-direction:column}.lrs-preview-auth .lrs-preview-banner{width:100%;max-width:384px}
 """
 
-BANNER = """<aside class="lrs-preview-banner" aria-label="Sharing preview"><p><strong>Read-only sharing preview</strong><br>Fictional data · changes are not saved · no email is sent.</p><nav class="lrs-preview-links" aria-label="Demo shortcuts"><a href="/overview">Workspace</a><a href="/inquiries/8">Sample inquiry</a><a href="/request-quote">Public form</a></nav></aside>"""
+BANNER = """<aside class="lrs-preview-banner" aria-label="Sharing preview"><p><strong>Read-only sharing preview</strong><br>Fictional data · changes are not saved · no email is sent.</p><nav class="lrs-preview-links" aria-label="Demo shortcuts"><a href="/overview">Home</a><a href="/inquiries/8">Example shipment</a><a href="/request-quote">Customer form</a></nav></aside>"""
 NOTICE = """<dialog id="lrs-preview-notice" aria-labelledby="lrs-preview-title"><h2 id="lrs-preview-title">Sharing preview</h2><p data-preview-message>This demonstration is read-only.</p><button type="button" class="btn btn-primary" data-preview-close>Continue exploring</button></dialog>"""
 
 
@@ -292,6 +297,8 @@ def build(state: Path, output: Path, limit: int) -> None:
         document = parser.output()
         document = re.sub(r'<div class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-\[#d9e7fb\] bg-\[#edf4ff\][^\"]*">.*?</div>', '', document, flags=re.S)
         document = re.sub(r'<div class="alert alert-info mb-6">Local business preview.*?</div>', '', document, flags=re.S)
+        document = re.sub(r'<p class="mb-5 flex flex-wrap items-center gap-2 text-xs text-slate-500">.*?<span class="badge tint-blue">Business preview</span>.*?</p>', '', document, flags=re.S)
+        document = re.sub(r'<div class="alert alert-warning mb-6">\s*Fictional[^<]*</div>', '', document)
         destination = site / (published_path(key).lstrip("/") + ".html")
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(document, encoding="utf-8")

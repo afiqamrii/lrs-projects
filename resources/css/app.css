@@ -183,3 +183,49 @@ button:disabled { opacity:.6; cursor:wait; }
     .inquiry-navigation .workspace-tab { min-height:44px; flex-shrink:0; }
 }
 @media print { .inquiry-navigation { display:none !important; } .attention-list { max-height:none; overflow:visible; } }
+
+.journey-navigation { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; padding:6px; border:1px solid #dedee3; border-radius:18px; background:#ededf0; }
+.journey-step { display:flex; align-items:center; gap:9px; padding:13px 10px; border-radius:12px; font-size:12px; line-height:1.4; font-weight:500; color:#626269; }
+.journey-step:hover { background:#fafafa; }
+.journey-step.active { background:white; color:#0066cc; box-shadow:0 2px 6px rgb(29 29 31 / 8%); }
+.journey-number { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:26px; height:26px; border-radius:50%; background:#e1e2e6; color:#515157; font-size:12px; font-weight:600; }
+.active .journey-number, .workflow-explainer .journey-number { background:#e0edff; color:#0066cc; }
+.support-navigation { max-width:100%; text-align:right; }
+.support-navigation summary { cursor:pointer; padding:8px 0; color:#626269; }
+.support-navigation nav { justify-content:flex-end; }
+.nav-group summary { cursor:pointer; padding:10px 12px; font-size:12px; font-weight:500; color:#626269; }
+.stage-purpose { padding:14px 18px; border-left:3px solid #87b7ef; background:#edf4ff; border-radius:0 12px 12px 0; font-size:13px; line-height:1.8; }
+.journey-next { padding:24px; background:linear-gradient(120deg,#fff,#edf4ff); border:1px solid #d2e3fa; border-radius:20px; }
+.journey-next h2 { font-size:24px; line-height:1.3; }
+.workflow-explainer { display:grid; gap:22px; }
+.workflow-explainer li { display:flex; align-items:start; gap:14px; }
+.home-workflow { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; padding-top:20px; border-top:1px solid #d2e3fa; }
+.home-workflow li { display:flex; align-items:center; gap:9px; font-size:12px; color:#515157; }
+.workflow-help { width:560px; max-width:calc(100% - 32px); max-height:calc(100dvh - 32px); overflow-y:auto; }
+.form-guide { padding:18px; border:1px solid #d2e3fa; border-radius:16px; background:#edf4ff; scroll-margin-top:20px; }
+.form-guide-tabs { display:grid; grid-template-columns:repeat(var(--form-step-count,4),minmax(0,1fr)); gap:8px; }
+.form-guide-tabs button { display:flex; align-items:center; gap:8px; min-height:44px; border-radius:10px; padding:9px 10px; text-align:left; font-size:12px; color:#515157; }
+.form-guide-tabs button.active { background:white; color:#0066cc; box-shadow:0 2px 6px rgb(29 29 31 / 6%); }
+.form-guide-tabs button span { display:grid; place-items:center; width:22px; height:22px; border-radius:50%; background:#dceaff; color:#0066cc; flex-shrink:0; font-size:11px; }
+.form-step-hidden { display:none !important; }
+.form-guide-actions { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:12px; padding:18px 0 4px; }
+.form-guide-actions>span { margin-right:auto; }
+details>summary { cursor:pointer; }
+#shipment-review, #record-event, #manage-inquiry { scroll-margin-top:24px; }
+@media(max-width:767px) {
+    .journey-navigation { grid-template-columns:repeat(2,minmax(0,1fr)); gap:2px; }
+    .journey-step:last-child { grid-column:1 / -1; }
+    .journey-step { padding:9px 12px; min-height:44px; }
+    .journey-number { width:24px; height:24px; }
+    .form-guide { padding:14px; }
+    .form-guide-tabs { grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px; }
+    .form-guide-actions { gap:8px; }
+    .form-guide-actions>span { width:100%; order:-1; }
+    .form-guide-actions .btn { flex:1 1 auto; font-size:12px; padding-inline:14px; }
+    .journey-next { padding:20px; }
+    .journey-next h2 { font-size:22px; }
+    .home-workflow { grid-template-columns:1fr; gap:12px; }
+    .workspace-bar { gap:8px; padding-inline:16px; }
+    .workspace-bar .btn-small { padding-inline:12px; font-size:11px; }
+}
+@media print { .journey-navigation, .support-navigation, .form-guide, .form-guide-actions { display:none !important; } .form-step-hidden { display:block !important; } }

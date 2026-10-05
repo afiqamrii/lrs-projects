@@ -2,7 +2,7 @@
 <fieldset class="offer-charge rounded-2xl border border-slate-200 p-5" data-charge-row>
 <legend class="px-2 text-xs font-semibold">Charge <span data-charge-number>{{ $i+1 }}</span> · <span data-charge-key class="font-normal text-slate-500">{{ $line['key']??'line-'.($i+1) }}</span></legend>
 <input type="hidden" name="{{ $base }}[key]" value="{{ $line['key']??'line-'.($i+1) }}">
-<div class="grid gap-4 sm:grid-cols-2">
+<details data-charge-detail @if($i===0 || $errors->has('lines.'.$i.'.*')) open @endif><summary class="text-sm font-medium" data-charge-summary>{{ $line['description']??'New charge' }} · {{ $line['currency']??$company->currency }} {{ $line['rate']??'amount not entered' }}</summary><div class="mt-5 grid gap-4 sm:grid-cols-2">
 <x-field :name="$base.'[description]'" label="Vendor's original charge description" :value="$line['description']??''" required maxlength="500" />
 <x-field :name="$base.'[source_ref]'" label="Unique source line / page locator" :value="$line['source_ref']??''" maxlength="2000" hint="Distinct source line; retain the original wording below." />
 @foreach(['category'=>\App\Support\OfferCosts::CATEGORIES,'service'=>\App\Support\OfferCosts::SERVICES,'state'=>\App\Support\OfferCosts::STATES,'basis'=>\App\Support\OfferCosts::BASES] as $key=>$options)
@@ -33,5 +33,5 @@
 <label class="flex items-start gap-3 text-xs leading-6"><input type="checkbox" name="{{ $base }}[optional]" value="1" @checked($line['optional']??false) class="mt-1 accent-accent">Optional service · excluded from required baseline total</label>
 <label class="flex items-start gap-3 text-xs leading-6"><input type="checkbox" name="{{ $base }}[confirmed]" value="1" @checked(old('lines.'.$i.'.confirmed',false)) class="mt-1 accent-accent">I checked this line's description, scope, amount, basis, applicable confirmed quantity, minimums, tax and source evidence.</label>
 </div>
-<button type="button" class="text-link mt-4 text-xs" data-remove-charge>Remove this draft line</button>
+<button type="button" class="text-link mt-4 text-xs" data-remove-charge>Remove this draft line</button></details>
 </fieldset>

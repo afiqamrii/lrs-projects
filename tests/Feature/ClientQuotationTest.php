@@ -74,7 +74,7 @@ class ClientQuotationTest extends TestCase
 
     public function test_complete_workbench_approves_exact_bytes_and_fixture_outbox_is_idempotent(): void
     {
-        $this->get(route('quotations.index', $this->case))->assertOk()->assertSee('Price with confidence');
+        $this->get(route('quotations.index', $this->case))->assertOk()->assertSee('Prepare customer quote');
         $r = $this->save();
         $this->assertSame([], QuotationEligibility::reasons($r));
         $this->assertSame('1560.00', $r->pricing['total']);

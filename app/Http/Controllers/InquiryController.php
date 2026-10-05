@@ -13,6 +13,7 @@ use App\Models\Client;
 use App\Models\Inquiry;
 use App\Models\ShipmentVersion;
 use App\Models\User;
+use App\Support\InquiryJourney;
 use App\Support\Shipment;
 use App\Support\WorkspaceData;
 use Illuminate\Http\RedirectResponse;
@@ -88,7 +89,7 @@ class InquiryController extends Controller
         $section = $request->validate(['section' => ['nullable', Rule::in(['overview', 'shipment', 'documents', 'activity'])]])['section'] ?? 'overview';
         $inquiry->load('publicSubmission', 'mailboxVerifications', 'client', 'contact', 'owner', 'versions', 'documents', 'clarifications', 'communications.documents');
 
-        return view('inquiries.show', ['inquiry' => $inquiry, 'section' => $section, 'gaps' => $inquiry->gaps(), 'totals' => Shipment::totals($inquiry->shipment), 'activity' => AuditEntry::where('inquiry_id', $inquiry->id)->latest('id')->paginate(15)->withQueryString()]);
+        return view('inquiries.show', ['inquiry' => $inquiry, 'section' => $section, 'journey' => InquiryJourney::current($inquiry), 'gaps' => $inquiry->gaps(), 'totals' => Shipment::totals($inquiry->shipment), 'activity' => AuditEntry::where('inquiry_id', $inquiry->id)->latest('id')->paginate(15)->withQueryString()]);
     }
 
     private function rowRedirect(InquiryRequest $request, ?Inquiry $inquiry = null): ?RedirectResponse

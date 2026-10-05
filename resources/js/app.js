@@ -46,6 +46,7 @@ document.querySelectorAll('[data-confirm-form]').forEach((form) => {
     });
 });
 import './inquiries.js';
+import './guided-forms.js';
 
 import './public-intake';
 
@@ -92,6 +93,10 @@ document.querySelectorAll('[data-offer-form]').forEach((form) => {
   row.querySelectorAll('.field-error').forEach(error=>error.remove());
   row.querySelectorAll('[aria-invalid]').forEach(input=>input.removeAttribute('aria-invalid'));
   row.querySelectorAll('details').forEach(details=>details.open=false);
+  const chargeDetails=row.querySelector('[data-charge-detail]');
+  if(chargeDetails)chargeDetails.open=true;
+  const chargeSummary=row.querySelector('[data-charge-summary]');
+  if(chargeSummary)chargeSummary.textContent='New charge · enter the quoted details';
   row.querySelectorAll('input,textarea').forEach(input=>{if(input.type==='checkbox')input.checked=false;else input.value='';});
   row.querySelectorAll('select').forEach(select=>select.selectedIndex=0);
   row.querySelector('input[type="hidden"]').value='line-'+crypto.randomUUID().split('-')[0];

@@ -6,6 +6,8 @@ The original baseline is [LRS_Phase_1_Codex_Prompt.md](LRS_Phase_1_Codex_Prompt.
 
 ## Functions developed and complete workflow
 
+The current interface follows **Shipment details → Ask vendors → Compare prices → Customer quote → Confirm & book**. Start at **Home → Walk through a sample** and open **How it works** for the short guide. Each shipment shows one next action; long forms are split into smaller groups and optional details/history stay in disclosures. See the [guided workflow verification and acceptance checklist](docs/phase-11-handoff.md#guided-shipment-workflow--5-october-2026). The detailed capability table below is the implementation reference.
+
 | Area | Working functions |
 |---|---|
 | Staff and foundation · Phase 1 | Login/reset/profile, active Admin/Agent access, staff administration, company settings, audited vendor/contact directory and real overview counts |

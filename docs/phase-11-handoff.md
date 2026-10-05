@@ -189,3 +189,24 @@ Uploads remain validated, bounded and private, but no antivirus scanning is conf
 Nonblocking local limitations: physical native date-picker/OS file saving/printing and screen-reader checks were not automated; the legacy Composer launcher emits PHP 8.5 deprecation notices although project checks/audit pass; local timing is not a throughput or recovery SLA. No new static analyzer was configured or installed because none exists in the repository.
 
 Stop after Phase 11. This completes the planned build phases; further work is defects or explicitly requested enhancements.
+## Guided shipment workflow · 5 October 2026
+
+The default workflow is now **Shipment details → Ask vendors → Compare prices → Customer quote → Confirm & book**. Home opens a fictional shipment; the shared **How it works** guide explains each stage and common terms in plain language. Each inquiry leads with one state-aware **Your next step** action. Historical vendor offers cannot advance a newly confirmed shipment; uncertain sends point to their existing status, and approval, actual handoff and actual booking remain separate.
+
+The sidebar prioritizes daily work. Contacts/reports, administration, files, email and history remain available in labelled disclosures. Inquiry lists use readable cards on phones. Long editors show one group at a time, with Back/Next and a draft action. Changing steps retains field values; validation reveals and focuses the affected group, including fields inside disclosures. Without JavaScript, all groups and the existing server-side forms remain usable. Human confirmations stay unchecked; no calculation, permission, required evidence, approval or send gate was removed.
+
+Local verification covered **115 distinct focused PostgreSQL tests / 1,211 assertions** across journey guidance, earlier website evidence, authentication, inquiries, sourcing, prices, customer quotations and lifecycle. The new seven journey tests passed with 82 assertions after the final current-shipment-version check; existing regression suites passed separately. Tests used the isolated lrs_test database. Pint, Blade compilation, production assets and whitespace checks passed. Earlier full-suite results above remain historical verification; this usability review did not rerun the entire suite.
+
+Actual desktop, 390px and 320px browser checks covered Home, inquiry/list navigation, guided forms, prices, customer decisions, vendor reconfirmation and handoff. Audited pages fit the viewport and had unique IDs, labelled visible controls and no nested forms. Native form validation opened the final quotation group and focused its missing review note. Adding/removing an unsaved charge retained blank values and unchecked confirmations. Selecting an actual vendor booking showed the booking-specific fields; other events hid and disabled them. No business record was saved during these browser checks. The shared guide opened and closed with Escape.
+
+### Guided workflow manual acceptance
+
+- [ ] From Home, open **Walk through a sample**, then **How it works**. Explain the five stages in the displayed order.
+- [ ] Open a shipment and follow its single **Your next step** action. Check incomplete details, reviewed price, pending send, customer reply and approved handoff scenarios.
+- [ ] Move forward/back through an unsaved form; entered values must remain. Submit with a missing required field and check the correct group opens with focus and visible feedback.
+- [ ] Review charge details and optional advanced settings. Human commercial confirmations must remain unchecked until explicitly checked.
+- [ ] Switch handoff event type. Only confirmed booking requests its vendor reference/contact/dates/scope evidence; approval alone must not report a booking.
+- [ ] Open files, email and historical revisions through their disclosures. Check Agent/Admin boundaries and repeat representative flows without JavaScript.
+- [ ] Inspect desktop and 390px/320px layouts with the client, then repeat the broader company pilot before real operation.
+
+The public Vercel demo is refreshed separately from the working Laravel application. It stays frozen, fictional and read-only; real provider behavior, production hosting, assistive technology and the company pilot remain unverified. Current deployment evidence is in the [operations runbook](OPERATIONS_RUNBOOK.md#temporary-vercel-sharing-preview).
