@@ -11,17 +11,17 @@ Public demo: [lrs-sharing-preview.vercel.app](https://lrs-sharing-preview.vercel
 |---|---|
 | Project | afiq-amris-projects/lrs-sharing-preview |
 | Target | Vercel production alias for the temporary sharing demo |
-| Status | READY; anonymous HTTP 200 and a fresh browser opened the actual screens |
+| Status | READY; dpl_J59c3bMhQUDnkpetRVX4PZ6o3aXw; anonymous HTTP 200 and a fresh browser opened the actual screens |
 | URL | https://lrs-sharing-preview.vercel.app |
-| Immutable deployment | https://lrs-sharing-preview-3x3uionva-afiq-amris-projects.vercel.app |
-| Source application | Phase 11 / quality review commit d65120b |
+| Immutable deployment | https://lrs-sharing-preview-1pg4m0nq1-afiq-amris-projects.vercel.app |
+| Source application | Phase 11 / guided workflow commit 7426f2448eca40e6b569b572236efd92c5e89353 |
 | Framework | Static HTML rendered by the existing Laravel Blade views, with the existing production CSS/JavaScript |
-| Remote static build | 660 ms; CLI reported 18 seconds through deployment/aliasing |
-| Coverage | 240 captured screens plus entry page; 10,373 internal links checked before deployment |
+| Remote static build | Static build inspected at 0 ms; CLI reported 12 seconds through deployment/aliasing |
+| Coverage | 240 captured screens plus entry page; 10,378 internal links checked before deployment; zero broken links and private authorization input values |
 
-The live alias was checked without cookies: overview, inquiry, client quotation, public form and reports returned HTTP 200 with the preview label. A fresh owned browser inspected the actual 1440px desktop and 390px/320px screens; mobile document widths matched their viewport, audited IDs were unique and page errors were empty. Native Save for review opened the sharing explanation rather than sending a request. Public required-field validation and step advancement worked, with no submission created. The earlier application regression remains 329 tests plus 30 final affected tests; Laravel code/dependencies were unchanged by this static deployment.
+The guided-workflow refresh was inspected READY on 5 October 2026. Without cookies, Home, inquiry, shipment editor, customer quotation and public form returned HTTP 200 with the preview label. A fresh owned browser inspected the actual 1440px desktop and 390px/320px screens: document widths matched the viewport, audited IDs were unique, visible inputs were labelled and page errors were empty. The five-stage guide opened and closed with Escape and restored focus. Native form Next/Back retained a changed unsaved title. Save draft displayed the explicit read-only explanation; no network mutation or submission was created. The source application passed 115 focused PostgreSQL tests / 1,215 assertions; earlier full-suite results remain historical evidence. This refresh changed presentation and next-step guidance without changing dependencies or business release gates.
 
-The separate ignored .tools/vercel-preview-20261005-01 artifact contains only sanitized screen output and public assets. No database, .env, browser cookies, application key, OAuth configuration or private file was deployed. Authentication/hidden authorization inputs and development logging scripts are removed. The read-only banner persists; mutation buttons and omitted sources/downloads explain their limits rather than reporting fake success. CSP blocks network connections, form actions and embedded private files. Robots headers discourage indexing; this is a public sharing link, not an access-controlled workspace.
+The separate ignored .tools/vercel-preview-20261005-ux01 artifact contains only sanitized screen output and public assets. No database, .env, browser cookies, application key, OAuth configuration or private file was deployed. Authentication/hidden authorization inputs and development logging scripts are removed. The read-only banner persists; mutation buttons and omitted sources/downloads explain their limits rather than reporting fake success. CSP blocks network connections, form actions and embedded private files. Robots headers discourage indexing; this is a public sharing link, not an access-controlled workspace.
 
 The [preview builder](../scripts/build-vercel-preview.py) uses Python's standard library, an ignored authenticated browser state file and localhost GET requests. It is specific to the current fictional preview IDs and has a 240-screen cap; some historical/filter/source variants show a preview explanation. It rejects a non-preview workspace and follows redirects only to localhost. Use a fiction-only local dataset and a fresh ignored output directory. It never resets or imports the normal database, and refuses to remove an existing output directory.
 

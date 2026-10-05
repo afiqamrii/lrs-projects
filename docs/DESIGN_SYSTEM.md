@@ -187,11 +187,12 @@ Filters and recovery retain entered data on validation errors and use shared err
 
 Preserve the established Apple-inspired light structure: quiet silver navigation, soft white surfaces, graphite type and restrained blue active states. Keep status colors alongside clear labels. Shared panels can shrink inside their grid without expanding the page; financial tables use tabular numbers and omit insignificant quantity zeroes without changing stored decimal calculations.
 
-Every inquiry screen now uses the same Inquiry sections component. Desktop tabs wrap; phones scroll inside the labelled navigation and show the active section on arrival. The primary Inquiries link stays active through sourcing, commercial review, pricing and handoff. Desktop navigation has its own viewport-height scroll so Profile and Sign out remain reachable; the mobile drawer retains Escape and focus behavior.
+Every inquiry screen uses the same five-stage Shipment workflow component. Desktop stages wrap; phones show a compact two-column grid with the current stage clearly indicated. Supporting files, email and history use a separate disclosure. The primary Inquiries link stays active through sourcing, commercial review, pricing and handoff. Desktop navigation has its own viewport-height scroll so Profile and Sign out remain reachable; the mobile drawer retains Escape and focus behavior.
 
 Compact paired inquiry summaries reduce phone scrolling. Historical revisions and health attention lists keep all evidence in bounded, keyboard-focusable regions. AI usage and cell provenance use the existing labelled, internally scrolling table components. Public information banners use the same quiet blue treatment.
 
 Display each actual incoming mailbox/provider state independently from the new-work outbound default. Missing earlier source fields have explicit unknown/not-retained text; presentation fallbacks never rewrite immutable originals. New draft charge rows start blank with unchecked human confirmations, valid unique labels and cleared prior field errors. See the final review record in [Phase 11 handoff](phase-11-handoff.md#final-workspace-quality-review) for actual browser evidence and remaining manual checks.
+
 
 ## Guided shipment workflow · 5 October 2026
 
