@@ -33,7 +33,7 @@ The populated normal database, private originals, approval history and fictional
 
 ### Source publication and live hosting
 
-The user authorized GitHub publication and internet deployment. Source repository: [afiqamrii/lrs-projects](https://github.com/afiqamrii/lrs-projects). A compatible authenticated live Laravel hosting account/project is still missing; the hosting question remains pending. GitHub source publication is separate from a working internet application. The existing [runbook](OPERATIONS_RUNBOOK.md#reviewable-rollout-and-rollback) covers PHP 8.5, PostgreSQL, protected persistent files, HTTPS, extraction tools, supervised queues/scheduler, clean company accounts and rollout. No working public application URL or production deployment is claimed.
+The user authorized GitHub publication and internet deployment. Source repository: [afiqamrii/lrs-projects](https://github.com/afiqamrii/lrs-projects). The user subsequently requested a temporary Vercel sharing link. [lrs-sharing-preview.vercel.app](https://lrs-sharing-preview.vercel.app) is now READY and opens anonymously with 240 read-only fictional screens rendered from the existing Laravel application. [The runbook](OPERATIONS_RUNBOOK.md#temporary-vercel-sharing-preview) records deployment and refresh instructions. Full Laravel/PostgreSQL hosting remains outstanding. The existing [runbook](OPERATIONS_RUNBOOK.md#reviewable-rollout-and-rollback) covers PHP 8.5, PostgreSQL, protected persistent files, HTTPS, extraction tools, supervised queues/scheduler, clean company accounts and rollout. The sharing preview provides public screen navigation; editing, uploads, approvals, sending, private downloads and live database operations remain in the full workspace. No production Laravel backend deployment is claimed.
 
 ## Original Phase 11 local verification
 
@@ -184,7 +184,7 @@ For a stale form, reload/review the current version; do not overwrite history. F
 
 Local planned implementation and verification are complete. The system is **not production-ready** while the target, real company policies/accounts/data, live Microsoft/Google/AI checks, continuous supervision, recoverable off-device backups and company pilot signoff remain missing. The detailed [runbook](OPERATIONS_RUNBOOK.md) supplies local commands, maintenance/recovery, rollout and compatible rollback requirements.
 
-Uploads remain validated, bounded and private, but no antivirus scanning is configured; the company must decide its public-pilot scanning policy. Public intake is currently local only.
+Uploads remain validated, bounded and private, but no antivirus scanning is configured; the company must decide its public-pilot scanning policy. Functional public intake is currently local only; the Vercel form preview creates no submissions.
 
 Nonblocking local limitations: physical native date-picker/OS file saving/printing and screen-reader checks were not automated; the legacy Composer launcher emits PHP 8.5 deprecation notices although project checks/audit pass; local timing is not a throughput or recovery SLA. No new static analyzer was configured or installed because none exists in the repository.
 

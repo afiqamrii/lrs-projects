@@ -1,6 +1,42 @@
 # LRS operations runbook · Phase 11
 
-Updated 5 October 2026. Actual verified environment: local Windows/PowerShell 7, PHP 8.5.2, Laravel 13.34.0, PostgreSQL 17.11 on loopback port 55432, Blade/Tailwind 4/Vite 8 and the existing database queue/cache. The user authorized GitHub publication and internet deployment on 5 October 2026. The source repository is [afiqamrii/lrs-projects](https://github.com/afiqamrii/lrs-projects). A compatible live hosting account/project has not been supplied or connected. This operating package is not evidence of a deployed production service.
+Updated 5 October 2026. Actual verified environment: local Windows/PowerShell 7, PHP 8.5.2, Laravel 13.34.0, PostgreSQL 17.11 on loopback port 55432, Blade/Tailwind 4/Vite 8 and the existing database queue/cache. The user authorized GitHub publication and internet deployment on 5 October 2026. The source repository is [afiqamrii/lrs-projects](https://github.com/afiqamrii/lrs-projects). A temporary public read-only Vercel sharing demo is now deployed and verified, as recorded below. Full Laravel/PostgreSQL hosting and production supervision remain outstanding; the sharing demo does not provide live operational service.
+
+
+## Temporary Vercel sharing preview
+
+Public demo: [lrs-sharing-preview.vercel.app](https://lrs-sharing-preview.vercel.app). No sign-in is needed. This is a frozen read-only demonstration of the current fictional screens; saving, uploads, approvals, provider connection/sending, private downloads and database changes remain in the full Laravel workspace. The original Laravel/Blade/PostgreSQL application is preserved.
+
+| Deployment field | Verified result |
+|---|---|
+| Project | afiq-amris-projects/lrs-sharing-preview |
+| Target | Vercel production alias for the temporary sharing demo |
+| Status | READY; anonymous HTTP 200 and a fresh browser opened the actual screens |
+| URL | https://lrs-sharing-preview.vercel.app |
+| Immutable deployment | https://lrs-sharing-preview-3x3uionva-afiq-amris-projects.vercel.app |
+| Source application | Phase 11 / quality review commit d65120b |
+| Framework | Static HTML rendered by the existing Laravel Blade views, with the existing production CSS/JavaScript |
+| Remote static build | 660 ms; CLI reported 18 seconds through deployment/aliasing |
+| Coverage | 240 captured screens plus entry page; 10,373 internal links checked before deployment |
+
+The live alias was checked without cookies: overview, inquiry, client quotation, public form and reports returned HTTP 200 with the preview label. A fresh owned browser inspected the actual 1440px desktop and 390px/320px screens; mobile document widths matched their viewport, audited IDs were unique and page errors were empty. Native Save for review opened the sharing explanation rather than sending a request. Public required-field validation and step advancement worked, with no submission created. The earlier application regression remains 329 tests plus 30 final affected tests; Laravel code/dependencies were unchanged by this static deployment.
+
+The separate ignored .tools/vercel-preview-20261005-01 artifact contains only sanitized screen output and public assets. No database, .env, browser cookies, application key, OAuth configuration or private file was deployed. Authentication/hidden authorization inputs and development logging scripts are removed. The read-only banner persists; mutation buttons and omitted sources/downloads explain their limits rather than reporting fake success. CSP blocks network connections, form actions and embedded private files. Robots headers discourage indexing; this is a public sharing link, not an access-controlled workspace.
+
+The [preview builder](../scripts/build-vercel-preview.py) uses Python's standard library, an ignored authenticated browser state file and localhost GET requests. It is specific to the current fictional preview IDs and has a 240-screen cap; some historical/filter/source variants show a preview explanation. It rejects a non-preview workspace and follows redirects only to localhost. Use a fiction-only local dataset and a fresh ignored output directory. It never resets or imports the normal database, and refuses to remove an existing output directory.
+
+To refresh this intentionally frozen demo, sign in to the fictional local workspace in the owned browser session, then:
+
+~~~powershell
+$env:AGENT_BROWSER_SESSION = 'lrs-phase-11-qa'
+npx.cmd --yes agent-browser state save .tools/vercel-preview-browser-state.json
+python scripts/build-vercel-preview.py --state .tools/vercel-preview-browser-state.json --output .tools/vercel-preview-FRESH-ID
+npx.cmd --yes vercel@50.19.1 link --cwd .tools/vercel-preview-FRESH-ID --project lrs-sharing-preview --scope afiq-amris-projects --yes
+npx.cmd --yes vercel@50.19.1 deploy --cwd .tools/vercel-preview-FRESH-ID --scope afiq-amris-projects --prod --yes
+~~~
+
+Replace FRESH-ID with a new date/release suffix. Keep browser state/configuration private; deploy only the generated artifact directory. No Git auto-deploy or persistent application backend is configured for this sharing project. Inspect the alias in an anonymous desktop/phone browser after each refresh. Full live operation still requires PostgreSQL, protected persistent files, supervised queues/scheduler, real accounts/providers and the company pilot below.
+
 
 ## Local startup and verification
 

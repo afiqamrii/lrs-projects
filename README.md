@@ -29,7 +29,9 @@ The final review corrected an inquiry crash on incomplete earlier website eviden
 
 Verification passed **329 complete PostgreSQL tests / 2,931 assertions**, followed by **30 final AI/extraction tests / 247 assertions**. Actual desktop/390px/320px pages and native form/charge/menu behavior were inspected. Read the [review evidence and manual acceptance](docs/phase-11-handoff.md#final-workspace-quality-review) for coverage and limitations.
 
-Source repository: [afiqamrii/lrs-projects](https://github.com/afiqamrii/lrs-projects). GitHub publication and internet deployment are authorized; a compatible live Laravel hosting account/project is still missing. There is no verified public application URL. Use the [rollout runbook](docs/OPERATIONS_RUNBOOK.md#reviewable-rollout-and-rollback) after connecting a target. Local preview data remains explicitly fictional.
+**Sharing demo: [lrs-sharing-preview.vercel.app](https://lrs-sharing-preview.vercel.app)**. No login is needed. Vercel serves 240 frozen, read-only screens from the actual Laravel/Blade application with fictional data. Forms, uploads, private downloads, approvals and email remain in the full workspace. See [preview deployment and refresh instructions](docs/OPERATIONS_RUNBOOK.md#temporary-vercel-sharing-preview).
+
+Source repository: [afiqamrii/lrs-projects](https://github.com/afiqamrii/lrs-projects). Full Laravel/PostgreSQL operation still needs compatible hosting, persistent private storage and supervised queues/scheduler. Use the [rollout runbook](docs/OPERATIONS_RUNBOOK.md#reviewable-rollout-and-rollback) for that deployment.
 
 ## Phase 11 reports, pilot and local operation
 
