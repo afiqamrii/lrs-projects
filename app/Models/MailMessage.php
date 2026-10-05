@@ -11,7 +11,7 @@ class MailMessage extends Model
 {
     use HasFactory;
 
-    public const CLASSES = ['quote' => 'Quotation received · not commercially reviewed', 'question' => 'Question', 'decline' => 'Decline', 'out_of_office' => 'Out of office', 'bounce' => 'Bounce evidence', 'noise' => 'Automated / mailing-list noise', 'customer' => 'Customer inquiry / reply', 'other' => 'Other · review'];
+    public const CLASSES = ['acceptance' => 'Acceptance · staff reviewed; no booking', 'revision_request' => 'Revision requested · staff review', 'quote' => 'Quotation received · not commercially reviewed', 'question' => 'Question', 'decline' => 'Decline', 'out_of_office' => 'Out of office', 'bounce' => 'Bounce evidence', 'noise' => 'Automated / mailing-list noise', 'customer' => 'Customer inquiry / reply', 'other' => 'Other · review'];
 
     protected $guarded = ['id'];
 
@@ -19,7 +19,12 @@ class MailMessage extends Model
 
     protected function casts(): array
     {
-        return ['source' => 'encrypted:array', 'candidates' => 'array', 'is_demo' => 'boolean', 'lock_version' => 'integer', 'received_at' => 'immutable_datetime', 'deleted_at_provider' => 'immutable_datetime'];
+        return ['response_reviewed_at' => 'immutable_datetime', 'source' => 'encrypted:array', 'candidates' => 'array', 'is_demo' => 'boolean', 'lock_version' => 'integer', 'received_at' => 'immutable_datetime', 'deleted_at_provider' => 'immutable_datetime'];
+    }
+
+    public function operationalMessage(): BelongsTo
+    {
+        return $this->belongsTo(OperationalMessage::class);
     }
 
     public function inquiry(): BelongsTo
@@ -30,6 +35,11 @@ class MailMessage extends Model
     public function revision(): BelongsTo
     {
         return $this->belongsTo(RfqRevision::class, 'rfq_revision_id');
+    }
+
+    public function clientQuotationRevision(): BelongsTo
+    {
+        return $this->belongsTo(ClientQuotationRevision::class);
     }
 
     public function attachments(): HasMany
@@ -52,5 +62,15 @@ class MailMessage extends Model
     public function oldRevision(): bool
     {
         return $this->revision && ($this->revision->number !== $this->revision->rfq->current_number || $this->revision->rfq->round->version->number !== $this->revision->rfq->inquiry->shipment_revision);
+    }
+
+    public function mailbox(): BelongsTo
+    {
+        return $this->belongsTo(MailboxConnection::class, 'mailbox_connection_id');
+    }
+
+    public function duplicate(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'duplicate_of_id');
     }
 }

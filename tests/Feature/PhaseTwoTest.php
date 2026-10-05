@@ -93,7 +93,7 @@ class PhaseTwoTest extends TestCase
         $this->post('/clients', ['company_name' => 'ACME'])->assertSessionHasNoErrors();
         $this->get('/clients/'.Client::latest('id')->first()->id)->assertSee('Possible duplicate');
         $this->patch('/clients/'.$client->id.'/status', ['is_active' => '0'])->assertSessionHasNoErrors();
-        $this->get('/inquiries/create')->assertDontSee('value="'.$client->id.'"', false);
+        $this->get('/inquiries/create')->assertOk()->assertViewHas('clients', fn ($clients): bool => ! $clients->contains('id', $client->id));
         $this->get('/clients?status=archived')->assertSee('Acme');
         $this->patch('/clients/'.$client->id.'/status', ['is_active' => '1'])->assertSessionHasNoErrors();
     }

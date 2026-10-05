@@ -6,14 +6,17 @@ use App\Actions\MailIngest;
 use App\Actions\MailOutbox;
 use App\Http\Requests\MailReviewRequest;
 use App\Jobs\ImportMailAttachments;
+use App\Models\ClientQuotationApproval;
 use App\Models\Inquiry;
 use App\Models\MailAttachment;
 use App\Models\MailboxConnection;
 use App\Models\MailDispatch;
 use App\Models\MailEnvelope;
 use App\Models\MailMessage;
+use App\Models\OperationalMessage;
 use App\Models\RfqApproval;
 use App\Support\MailRelease;
+use App\Support\WorkspaceData;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,9 +31,12 @@ class MailController extends Controller
 {
     public function index(Request $request): View
     {
-        $data = $request->validate(['q' => ['nullable', 'string', 'max:160'], 'state' => ['nullable', Rule::in(['unmatched', 'matched', 'automated', 'ignored'])], 'classification' => ['nullable', Rule::in(array_keys(MailMessage::CLASSES))], 'data' => ['nullable', Rule::in(['real', 'fixtures', 'all'])]]);
-        $data['data'] ??= 'real';
-        $q = MailMessage::with('inquiry', 'revision')->where('direction', 'incoming');
+        $data = $request->validate(['q' => ['nullable', 'string', 'max:160'], 'state' => ['nullable', Rule::in(['unmatched', 'matched', 'duplicate_copy', 'automated', 'ignored'])], 'classification' => ['nullable', Rule::in(array_keys(MailMessage::CLASSES))], 'data' => ['nullable', Rule::in(['real', 'samples', 'fixtures', 'all'])]]);
+        $data['data'] ??= WorkspaceData::preview() ? 'samples' : 'real';
+        $q = MailMessage::with('inquiry', 'mailbox', 'revision.rfq.round.version', 'revision.rfq.inquiry')->where('direction', 'incoming');
+        if ($data['data'] === 'samples') {
+            $q->whereHas('inquiry', fn ($query) => $query->where('sample_set', WorkspaceData::SAMPLE_SET));
+        }
         if ($data['q'] ?? null) {
             $q->where(fn ($query) => $query->where('subject', 'ilike', '%'.$data['q'].'%')->orWhere('sender_email', 'ilike', '%'.$data['q'].'%'));
         }
@@ -41,10 +47,10 @@ class MailController extends Controller
             $q->where('classification', $data['classification']);
         }
         if ($data['data'] !== 'all') {
-            $q->where('is_demo', $data['data'] === 'fixtures');
+            $q->where('is_demo', in_array($data['data'], ['fixtures', 'samples'], true));
         }
 
-        return view('mail.index', ['messages' => $q->latest('id')->paginate(20)->withQueryString(), 'connection' => MailboxConnection::current(), 'dataSource' => $data['data'], 'attention' => MailMessage::where('direction', 'incoming')->when($data['data'] !== 'all', fn ($q) => $q->where('is_demo', $data['data'] === 'fixtures'))->where('match_state', 'unmatched')->count()]);
+        return view('mail.index', ['messages' => $q->latest('id')->paginate(20)->withQueryString(), 'connections' => MailboxConnection::orderBy('id')->get(), 'dataSource' => $data['data'], 'attention' => MailMessage::where('direction', 'incoming')->when($data['data'] === 'samples', fn ($query) => $query->whereHas('inquiry', fn ($case) => $case->where('sample_set', WorkspaceData::SAMPLE_SET)))->when($data['data'] !== 'all', fn ($q) => $q->where('is_demo', in_array($data['data'], ['fixtures', 'samples'], true)))->where('match_state', 'unmatched')->count()]);
     }
 
     public function show(Request $request, MailMessage $message): View
@@ -54,7 +60,7 @@ class MailController extends Controller
         $ids = array_filter([$message->inquiry_id, ...array_column($message->candidates, 'inquiry_id')]);
         $cases = $cases->merge(Inquiry::where('is_demo', $message->is_demo)->whereIn('id', $ids)->get());
 
-        return view('mail.message', ['message' => $message->load('inquiry', 'revision.rfq.round.version', 'attachments'), 'inquiries' => $cases, 'caseSearch' => $search, 'approvals' => RfqApproval::with('revision.rfq')->whereHas('revision.rfq', fn ($q) => $q->whereIn('inquiry_id', $cases->modelKeys()))->latest('id')->get(), 'events' => DB::table('mail_events')->where('mail_message_id', $message->id)->latest('id')->get()]);
+        return view('mail.message', ['message' => $message->load('inquiry', 'revision.rfq.round.version', 'attachments'), 'inquiries' => $cases, 'caseSearch' => $search, 'approvals' => RfqApproval::with('revision.rfq')->whereHas('revision.rfq', fn ($q) => $q->whereIn('inquiry_id', $cases->modelKeys()))->latest('id')->get(), 'quotationApprovals' => ClientQuotationApproval::with('revision.quotation')->whereHas('revision.quotation', fn ($q) => $q->whereIn('inquiry_id', $cases->modelKeys()))->latest('id')->get(), 'operationalMessages' => OperationalMessage::whereIn('inquiry_id', $cases->modelKeys())->whereHas('approval')->latest('id')->get(), 'events' => DB::table('mail_events')->where('mail_message_id', $message->id)->latest('id')->get()]);
     }
 
     public function review(MailReviewRequest $request, MailMessage $message, MailIngest $ingest): RedirectResponse
@@ -95,13 +101,13 @@ class MailController extends Controller
         $reasons = [];
         try {
             $source = $release->source($kind, $id, $request->user());
-            $snapshot = $release->preview($source, MailboxConnection::current());
+            $snapshot = $release->preview($source, $release->connection($source));
         } catch (ValidationException $e) {
             $reasons = array_merge(...array_values($e->errors()));
         }
         $key = $kind.':'.$id;
 
-        return view('mail.preview', ['source' => $source, 'snapshot' => $snapshot, 'reasons' => $reasons, 'kind' => $kind, 'sourceId' => $id, 'connection' => MailboxConnection::current(), 'envelopes' => MailEnvelope::where('source_key', $key)->latest('id')->get(), 'dispatches' => MailDispatch::where('source_key', $key)->latest('id')->get()]);
+        return view('mail.preview', ['source' => $source, 'snapshot' => $snapshot, 'reasons' => $reasons, 'kind' => $kind, 'sourceId' => $id, 'connection' => isset($source) ? $release->connection($source) : MailboxConnection::current(), 'envelopes' => MailEnvelope::where('source_key', $key)->latest('id')->get(), 'dispatches' => MailDispatch::where('source_key', $key)->latest('id')->get()]);
     }
 
     public function authorizeEnvelope(Request $request, string $kind, int $id, MailOutbox $outbox): RedirectResponse

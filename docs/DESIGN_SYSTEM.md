@@ -1,5 +1,5 @@
 # LRS design system
-Phases 1–3B · refined 4 October 2026 following the user's Apple-style design direction. Preserve the accepted screen structure while continuing the lighter visual language.
+Phases 1–11 · refined 4–5 October 2026 following the user's Apple-style design direction. Preserve the accepted screen structure while continuing the lighter visual language.
 
 ## Direction and identity
 Use a light, calm workspace with clear hierarchy, generous white space, soft depth and selective color. The Apple inspiration is translated to a browser application: silver navigation, graphite text, white surfaces, blue actions and rounded controls. Do not copy Apple branding or introduce proprietary fonts. The LRS wordmark and blue geometric mark remain concept branding pending company approval.
@@ -125,3 +125,70 @@ Incoming messages use readable escaped text and optionally escaped original HTML
 Desktop uses minmax main/secondary panels. Phones stack them, wrap long subject/address/checksum/provider IDs, retain labelled native forms and private-source focus regions, and use the existing navigation drawer. No token strings, raw provider error bodies or signed upload URLs appear in screens. Recovery explains the effect before the explicit action; submitted mail cannot be recalled.
 
 Phase 5 data consistency: overview inquiry metrics, review queue and inquiry activity follow the real-record default used by the inquiry workspace. A visible link keeps labelled test fixtures accessible. Fixture release/association cannot cross into real inquiry data; no empty real queue is filled with fabricated customer activity.
+
+
+## Phase 6 quotation review and comparison patterns
+
+Keep the existing Apple-inspired silver canvas, white surfaces, graphite text and blue actions. Comparison uses readable vendor/alternative cards and tabular costs; it does not add a generic chart, invented vendor score or AI winner. Display known subtotal, reviewed baseline cost, lowest comparable cost, outside-ranking reasons and provisional/final state in text as well as color. Optional cost is separate; original and indicative comparison currencies stay labelled.
+
+Commercial review uses numbered scope, quantity, charge, currency and terms sections with a source panel alongside at wide widths. Small screens stack source evidence before the form with a visible source anchor. Private originals, extracted row/page locators, immutable versions and actual review authors remain accessible. Calculations use a keyboard-focusable controlled scroll region. Charge-row add/remove retains stable source-reference keys and unique field IDs. FX changing target clears confirmations and updates direction context; no conversion is guessed.
+
+Explicit per-field proposal decisions create a draft. Separate human section/charge checkboxes are never prechecked from a previous revision. Inline errors, focusable error summary, persisted stale lock values and unsaved-change feedback protect corrections. Final/provisional actions use a keyboard-accessible native confirmation dialog that retains the submitted action. Saved cost-basis summary displays the frozen decision and eligibility checked against current facts.
+
+Business preview has a persistent fictional-data banner, plus permanent sample labels on client/vendor/inquiry/email records. Professional names and plausible rates improve realism without implying real operations. Legacy immutable originals and audits keep their historical wording. Source evidence and all vendor costs stay staff-only; public intake never displays comparison or commercial amounts.
+
+## Phase 7 pricing and client document patterns
+
+Retain the Apple-inspired silver canvas, white surfaces, graphite type and restrained blue actions. The inquiry's Client quotation tab groups source selection, customer line descriptions, explicit markup/tax, contacts/terms and editable email into four numbered sections. The saved selling total and estimated private economics sit alongside the editor on desktop; phones stack panels with wrapped references and readable native inputs. Mark saved values clearly, and reset human confirmations for every edit.
+
+Save draft, save for review, approve exact quotation and explicitly enqueue are separate steps. Review places the exact private PDF and email beside staff-only pricing/readiness; show actual sender/Reply-To and the one-file checksum manifest. Revision links retain superseded content, author/time, reason and linked resend evidence. Empty source selection links to vendor review. Visible validation/gaps preserve manual drafting when credentials are absent. No invented analytics, AI winner or realized-revenue chart is added.
+
+The customer PDF uses a dedicated A4 Blade template, local DejaVu Sans and restrained blue/graphite styling, not browser Tailwind. Repeated company monogram/ref/revision headers and numbered footers, wrapping identity/service descriptions, separate optional prices, a prominent blue selling total and booking qualification support predictable short/multi-page output. Customer projection excludes internal financial/evidence data. Exact bytes are saved privately and reused for review, download and sending.
+
+## Phase 8 follow-up and attention patterns
+
+Reuse the Apple-inspired silver canvas, quiet white panels, graphite typography, blue primary actions and curated outline icons. Status text distinguishes Approved automatic, Review each reminder, Active, Held, Paused, Stopped, Cancelled, Exhausted, Accepted and Delivery unconfirmed. Color supplements these labels. No reminder-response graph is justified without real operational data.
+
+The RFQ/client quotation panel summarizes approved mode/policy, cumulative count, next date, latest response and stop reason. Full activation pairs the exact actual envelope and immutable original baseline with every rendered message, projected date, working calendar, sync threshold, optional manifest, expiry and explicit approval. An accepted reminder links to its exact message/outbox evidence. A held plan explains the next human action; it does not imply automatic resumption. Manual review uses a distinct exact-message approval screen.
+
+Attention cards show the responsible staff member, source evidence, concrete next action and separate assignment/resolution forms. Each field has a unique ID even across repeated task cards. Resolution requires a reason and explicitly does not resume reminders. Useful no-task/no-plan/disabled-policy states retain recovery/navigation links.
+
+Desktop uses existing minmax main/secondary columns. Phones stack surfaces, wrap long addresses/references and retain labelled native fields, visible focus, skip navigation and the established drawer. Activation and pause/cancel reasons use distinct IDs. The Phase 8 handoff records actual browser and responsive verification; no full assistive-technology audit is claimed.
+
+
+## Phase 9 connections and provider context
+
+Retain the Apple-inspired silver canvas, white panels, graphite type, blue actions and curated icons. Use small red Gmail and blue Outlook badges with provider text; keep default, incoming paused, fictional and connected/health states explicit. Multiple connection cards belong to one workspace. Show verified From identities, actual approved sender/Reply-To and a concise explanation that existing messages stay on their authorized mailbox.
+
+Connection setup uses labelled native controls, visible no-credentials states and an explicit Admin rights/import-boundary confirmation. Raw Google IDs remain in technical evidence only where staff needs them; tokens and secrets never appear. Preview/history/outbox/attention reuse existing forms and empty/error/success states. Desktop separates main controls from setup guidance; phones stack and wrap long emails/references. No chart is justified by fictional mail activity. Actual responsive inspection and remaining accessibility checks are recorded in the Phase 9 handoff.
+
+
+## Phase 10 decision and operations patterns
+
+Extend the Apple-inspired silver canvas, quiet white surfaces, graphite typography, blue actions and restrained green/amber states. Color accompanies explicit text. Current lifecycle cards distinguish Client decision, Vendor confirmation, Handoff and Booking; one next action and responsible agent lead. Keep older quotations collapsed and historical evidence accessible. Fictional records retain their banner. No operational chart is invented from fictional activity; reporting belongs to Phase 11.
+
+Decision review places exact saved PDF/terms/total/revision and original response beside explicit staff confirmations. Vendor review compares native selected cost, shipment dates and actual capacity evidence, with a concise editable message and separate approvals. Checklist items show Complete, Missing, Conditional or Not applicable with reason/source. Policy belongs to Admin; operational evidence and actual events belong to authorized staff. Original vendor booking emails are named selectable evidence rather than raw IDs.
+
+Desktop uses bounded main/secondary columns; phones stack panels and wrap long source/reference/contact text. Retain native labelled controls, visible errors with entered values, keyboard focus, skip link, private-file context and useful no-policy/no-confirmation/no-evidence states. Current blockers accompany preserved exports; approval and booking controls remain separate. The A4 private internal PDF uses restrained blue/graphite, repeated confidential reference headers, numbered footers, readable shipment/checklist rows and financial groups kept together across pages. See Phase 10 handoff for actual browser/PDF verification and remaining manual checks.
+
+
+## Phase 11 reports and operational health
+
+Preserve the existing structure, white panels, silver navigation, graphite typography and blue actions. Operational reports uses a compact receipt/filter panel, four defined metrics, one real status-count bar chart with accessible textual links, and current evidence tables. Avoid decorative charts, fake performance scores and an invented revenue dashboard. Fictional provenance, unknown values, native currencies, recorded versus estimated amounts and actual versus unconfirmed booking remain explicit.
+
+Use the existing .table-wrap and .table components for report/health tables: internal horizontal scrolling, shared cell padding/headers, rounded edges and keyboard-focusable labelled regions. New pages were checked at 1440px, 390px and 320px; they do not expand the document width. Pass the already-loaded company timezone into timestamp display rather than performing settings queries for each row.
+
+Health uses observed No observation / Recently observed / Stale observation, with timestamps and a five-minute attention threshold. Empty queues are not a green worker assertion. Outgoing pause has an amber workspace banner, human reason/acknowledgement, explicit success feedback and separate resume wording; use current business release gates after the control changes. Preserve uncertainty and historical evidence labels. Public and Agents never see Admin control actions.
+
+Filters and recovery retain entered data on validation errors and use shared error summary/field messages. Desktop/mobile focus, menu Escape, meaningful empty states, real invalid-period errors and actual pause/resume feedback are recorded in [Phase 11 handoff](phase-11-handoff.md). Assistive technology, physical native date-picker and normal-browser file saving/printing remain company manual acceptance.
+
+
+## Final workspace quality review
+
+Preserve the established Apple-inspired light structure: quiet silver navigation, soft white surfaces, graphite type and restrained blue active states. Keep status colors alongside clear labels. Shared panels can shrink inside their grid without expanding the page; financial tables use tabular numbers and omit insignificant quantity zeroes without changing stored decimal calculations.
+
+Every inquiry screen now uses the same Inquiry sections component. Desktop tabs wrap; phones scroll inside the labelled navigation and show the active section on arrival. The primary Inquiries link stays active through sourcing, commercial review, pricing and handoff. Desktop navigation has its own viewport-height scroll so Profile and Sign out remain reachable; the mobile drawer retains Escape and focus behavior.
+
+Compact paired inquiry summaries reduce phone scrolling. Historical revisions and health attention lists keep all evidence in bounded, keyboard-focusable regions. AI usage and cell provenance use the existing labelled, internally scrolling table components. Public information banners use the same quiet blue treatment.
+
+Display each actual incoming mailbox/provider state independently from the new-work outbound default. Missing earlier source fields have explicit unknown/not-retained text; presentation fallbacks never rewrite immutable originals. New draft charge rows start blank with unchecked human confirmations, valid unique labels and cleared prior field errors. See the final review record in [Phase 11 handoff](phase-11-handoff.md#final-workspace-quality-review) for actual browser evidence and remaining manual checks.

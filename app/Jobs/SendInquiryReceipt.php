@@ -35,6 +35,9 @@ class SendInquiryReceipt implements ShouldQueue
 
     public function handle(): void
     {
+        if (config('operations.restore_lockdown')) {
+            return;
+        }
         $claim = DB::transaction(function (): ?array {
             $candidate = MailboxVerification::find($this->verificationId);
             if (! $candidate) {

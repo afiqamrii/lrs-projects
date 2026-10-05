@@ -23,12 +23,13 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(5)->by(mb_strtolower((string) $request->input('email')).'|'.$request->ip()),
             Limit::perMinute(30)->by($request->ip()),
         ]);
+        RateLimiter::for('report-export', fn (Request $request) => Limit::perMinute(5)->by($request->user()?->id ?? $request->ip()));
         RateLimiter::for('sensitive', fn (Request $request) => Limit::perMinute(5)->by($request->user()?->id ?? $request->ip()));
         RateLimiter::for('public-page', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
         RateLimiter::for('public-intake', fn (Request $request) => [Limit::perMinute(4)->by($request->ip()), Limit::perHour(8)->by($request->ip())]);
         RateLimiter::for('public-resend', fn (Request $request) => [Limit::perMinute(1)->by($request->user()?->id ?? $request->ip()), Limit::perHour(3)->by($request->user()?->id ?? $request->ip())]);
         RateLimiter::for('public-confirm', fn (Request $request) => [Limit::perMinute(5)->by($request->ip()), Limit::perHour(20)->by($request->ip())]);
-        View::composer(['overview', 'components.layout', 'components.activity', 'clients.*', 'inquiries.*', 'sourcing.*', 'mail.*', 'mailbox.*', 'components.shipment-summary'], function (\Illuminate\View\View $view): void {
+        View::composer(['overview', 'components.layout', 'components.activity', 'clients.*', 'inquiries.*', 'sourcing.*', 'offers.*', 'reports.*', 'operations.*', 'lifecycle.*', 'mail.*', 'mailbox.*', 'components.shipment-summary'], function (\Illuminate\View\View $view): void {
             $view->with('company', CompanySetting::current());
         });
         Password::defaults(fn () => Password::min(12)->letters()->mixedCase()->numbers());

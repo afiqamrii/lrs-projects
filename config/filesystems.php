@@ -29,13 +29,13 @@ return [
     */
 
     'disks' => [
-        'mailbox' => ['driver' => 'local', 'root' => storage_path('app/private/mailbox'), 'visibility' => 'private', 'serve' => false, 'throw' => true, 'report' => false],
+        'mailbox' => ['driver' => 'local', 'root' => rtrim(env('LRS_RESTORE_PRIVATE_ROOT', storage_path('app/private')), '/\\').'/mailbox', 'visibility' => 'private', 'serve' => false, 'throw' => true, 'report' => false],
 
-        'extraction' => ['driver' => 'local', 'root' => storage_path('app/private/extraction'), 'visibility' => 'private', 'serve' => false, 'throw' => true, 'report' => false],
+        'extraction' => ['driver' => 'local', 'root' => rtrim(env('LRS_RESTORE_PRIVATE_ROOT', storage_path('app/private')), '/\\').'/extraction', 'visibility' => 'private', 'serve' => false, 'throw' => true, 'report' => false],
 
         'inquiry_documents' => [
             'driver' => 'local',
-            'root' => storage_path('app/private/inquiry-documents'),
+            'root' => rtrim(env('LRS_RESTORE_PRIVATE_ROOT', storage_path('app/private')), '/\\').'/inquiry-documents',
             'visibility' => 'private',
             'serve' => false,
             'throw' => true,
@@ -44,7 +44,7 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app/private'),
+            'root' => env('LRS_RESTORE_PRIVATE_ROOT', storage_path('app/private')),
             'serve' => true,
             'throw' => false,
             'report' => false,

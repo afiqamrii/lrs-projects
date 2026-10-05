@@ -9,3 +9,9 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('lrs:mailbox-tick')->everyMinute()->withoutOverlapping();
+
+Schedule::command('lrs:followup-tick')->everyMinute()->withoutOverlapping(5);
+
+Schedule::command('lifecycle:maintain')->everyMinute()->withoutOverlapping(5);
+
+Schedule::command('lrs:operations-heartbeat')->everyMinute()->withoutOverlapping(2);

@@ -11,13 +11,13 @@ class Client extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['company_name', 'reference_identifier', 'address', 'internal_notes', 'is_active'];
+    protected $fillable = ['is_demo', 'company_name', 'reference_identifier', 'address', 'internal_notes', 'is_active'];
 
     protected $attributes = ['is_active' => true];
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
+        return ['is_active' => 'boolean', 'is_demo' => 'boolean'];
     }
 
     public function contacts(): HasMany

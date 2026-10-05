@@ -7,7 +7,7 @@ LRS is one company-operated logistics inquiry and quotation workspace, not a mul
 Initial shipment scope is general cargo sea freight, LCL and FCL. Pickup, delivery, clearance and insurance are explicit requested services. Special cargo requires manual specialist review. Other logistics modes come later.
 
 ## Authorized implementation boundary
-Phases 1–5 are implemented: Laravel/PHP, Blade, Tailwind/Vite and PostgreSQL; staff authentication/authorization, vendor/client/contact directories, company preferences, real overview queues and sanitized activity history; manual inquiries, explicit LCL/FCL shipment requirements, private original documents, deterministic manual clarifications, customer response records and immutable confirmed shipment versions.
+Phases 1–11 are implemented locally: Laravel/PHP, Blade, Tailwind/Vite and PostgreSQL; staff authentication/authorization, vendor/client/contact directories, company preferences, real overview queues and sanitized activity history; manual inquiries, explicit LCL/FCL shipment requirements, private original documents, deterministic manual clarifications, customer response records and immutable confirmed shipment versions.
 
 The approved Phase 2 and Phase 3A briefs are preserved in [PHASE_2_BRIEF.md](PHASE_2_BRIEF.md) and [PHASE_3A_BRIEF.md](PHASE_3A_BRIEF.md). Admin and Agent share all client/inquiry operations. Owner identifies responsibility rather than exclusive access. Only Admin manages staff/settings. Clients/vendors have no accounts.
 
@@ -15,7 +15,7 @@ Draft information can remain unknown. General-cargo readiness requires active st
 
 Clarification text is deterministic and editable, with exact recipient/revision approval and clipboard fallback. Approval and copying do not count as sending; explicit approved Outlook dispatch and separate outside-LRS communication records preserve their own evidence. Uploads remain private originals, never silently extracted into confirmed fields.
 
-Phase 3A adds anonymous website intake to this same inquiry workspace and a narrowly scoped, optional approved receipt/mailbox-confirmation email. Phase 3B adds local extraction/selective OCR, structured proposals, private evidence review and usage controls. Phase 4 adds vendor selection, professional RFQ preparation, exact approval and explicit manual-send evidence. Phase 5 adds a pinned delegated Microsoft Graph mailbox, exact sender-envelope authorization, explicit approved sending, incoming email cases/replies, audited matching and bounded recovery. Live Microsoft configuration/Exchange behavior remain unverified locally. Offer comparison, client quote/PDF, markup, automatic reminder and booking are unimplemented. The current authorization ends after Phase 5. Future workflow below describes the roadmap, not current capabilities.
+Phase 3A adds anonymous website intake to this same inquiry workspace and a narrowly scoped, optional approved receipt/mailbox-confirmation email. Phase 3B adds local extraction/selective OCR, structured proposals, private evidence review and usage controls. Phase 4 adds vendor selection, professional RFQ preparation, exact approval and explicit manual-send evidence. Phase 5 adds a pinned delegated Microsoft Graph mailbox, exact sender-envelope authorization, explicit approved sending, incoming email cases/replies, audited matching and bounded recovery. Live Microsoft configuration/Exchange behavior remain unverified locally. Phase 6 adds reviewed vendor offers, equivalent-scope cost comparison and immutable reasoned agent selection. Phase 7 adds explicit staff markup, precise private cost/profit/margin, customer PDF/email, immutable exact approval and explicit shared-outbox sending. Phase 8 adds human-approved bounded follow-ups, business-day calendars, current-response/eligibility cancellation and internal staff attention through the existing outbox. Human approval remains mandatory for formal acceptance and booking. Phase 9 adds self-account Gmail OAuth, verified From aliases, exact MIME/private attachments, separate provider draft/sent/thread semantics, bounded history intake and conservative recovery through the shared outbox/review/reminder contracts. Several incoming connections and one new-work outbound default preserve all frozen mailbox authorizations. Live Google remains unverified locally. Phase 10 adds exact staff-reviewed client outcomes, vendor reconfirmation and controlled internal handoff/booking evidence. Phase 11 adds defined staff reporting, observed Admin operational health, emergency outgoing controls, bounded recovery, isolated encrypted backup/restore and the pilot/deployment runbook. The current authorization ends after Phase 11. The workflow below describes implemented capabilities; genuine company/live infrastructure verification remains outstanding.
 
 ## Phase 4 sourcing and approval rules
 
@@ -62,7 +62,7 @@ Database/session-bound form keys prevent duplicate cases/files/mail on retries, 
 
 Admin alone configures intake availability, public introduction/contact/privacy wording/version, active default owner and approved receipt wording/enablement. Branding and privacy language need company review before a public launch. A paused form gives a contact/unavailable state; staff/manual intake continues. See [HANDOFF](HANDOFF.md) for routes, migration, configuration, queue/run instructions, tests and the 11-step manual checklist.
 
-## Full future workflow
+## Full workflow and remaining roadmap
 1. Receive client email, a form or a manually entered inquiry.
 2. Preserve source messages/attachments, create a case reference, assign an owner and deadline.
 3. Extract proposed shipment fields and document type; identify missing/conflicting information.
@@ -84,11 +84,11 @@ Admin alone configures intake availability, public introduction/contact/privacy 
 - Reuse unchanged extraction, account for AI/OCR usage and treat documents as untrusted data.
 - AI proposes fields and text. It cannot authorize sending, establish authoritative costs or book shipments.
 - Material changes invalidate affected approvals. Retain shipment and quotation revisions.
-- Routine reminders may eventually use approved wording and schedules; new wording, negotiation or changed terms needs approval. Stop reminders on relevant responses or closure.
-- Outlook is the first connector; Gmail follows. Connectors must remain replaceable without promising universal provider coverage.
+- Routine reminders use explicitly approved frozen wording, envelopes and bounded schedules; new wording, negotiation or changed terms requires new approval. Stop relevant reminders on meaningful responses or closure, and hold unsafe/incomplete incoming evidence for staff.
+- Outlook and Gmail share the implemented approval, incoming evidence and reminder workflows through focused provider adapters. Preserve provider-specific identity and recovery semantics without promising universal provider coverage.
 - Deduplicate messages/jobs and provide mailbox catch-up. Reconcile uncertain send outcomes before retries.
 - Client documents must exclude vendor costs, markup, competing vendors and internal notes.
-- Store timestamps in UTC; display Asia/Kuala_Lumpur initially. Business-day reminder settings come later.
+- Store timestamps in UTC; display Asia/Kuala_Lumpur initially. Phase 8 business-day reminder settings freeze the configured company timezone and entered working weekdays/hours/holidays.
 
 ## Phase 1 access rules
 Admins manage staff, directory and company settings. Agents view/create/edit vendors and contacts, activate/deactivate vendors and update their own name/password. Both share the company directory. Public registration is absent.
@@ -121,7 +121,7 @@ The user accepted the screen structure and requested an Apple-style visual refin
 ## Company input needed before pilot
 Confirm legal/display name, official branding, staff roster and real directory examples; actual service/routes/cargo restrictions and specialist responsibility; vendor contact ownership/deliverability; quote terms, exclusions, billing responsibility and approval thresholds; quote templates and markup/fee policy; approved mailbox permissions, reminder wording/schedules and booking evidence requirements.
 
-These decisions are not silently filled in by Phases 1–5. Public branding/contact/privacy and receipt wording also need company approval before launch; no legal approval or external delivery has been assumed.
+These decisions are not silently filled in by Phases 1–6. Public branding/contact/privacy and receipt wording also need company approval before launch; no legal approval or external delivery has been assumed.
 
 ## Phase 5 real intake and approved Outlook release
 
@@ -133,4 +133,63 @@ Human content approval, actual sender-envelope authorization and explicit enqueu
 
 Only configured incoming folders create Needs review cases/replies. Durable per-folder delta pages/cursors, immutable mailbox/message deduplication, private validated files, source/classification/match audit, bounded catch-up and operational recovery preserve history. Known threads also require expected sender context; unknown/ambiguous/automated evidence needs assessment. Clarification replies cannot silently change shipment versions. No quotation prices are parsed or approved in this phase.
 
-Implementation is locally fixture-verified; Microsoft configuration/live Exchange checks remain unavailable. Phase 6 begins reviewed offers/comparison only after separate authorization. See current [HANDOFF](HANDOFF.md) for exact interfaces, limits, configuration, run instructions and acceptance.
+Implementation is locally fixture-verified; Microsoft configuration/live Exchange checks remain unavailable. Phase 6 is now separately authorized and implemented; its current contracts are recorded below. See current [HANDOFF](HANDOFF.md) for exact interfaces, limits, configuration, run instructions and acceptance.
+
+
+## Phase 6 reviewed offers and selection
+
+The full [Phase 6 brief](PHASE_6_BRIEF.md) is implemented. Staff capture exact vendor/email/document/manual evidence bound to inquiry, approved RFQ revision, sourcing round and confirmed shipment. Multiple alternatives stay separate. Commercial corrections and vendor-source replacements preserve history; re-import is idempotent. Customer invoices, packing lists and client RFQs cannot automatically supply vendor freight costs.
+
+Deterministic BigDecimal/NUMERIC calculations retain vendor totals, original currencies, explicit bases/minimums/tax, required versus optional charges and rounding/FX evidence. Included, priced, not applicable, excluded, missing and unpriced remain distinct. Equivalent-scope ranking includes only current complete reviewed eligible offers; unknown required delivery cannot appear cheapest. A single usable quote is sufficient. AI proposes quotation-only fields with snippets/uncertainty; per-field decisions save a draft, never approve commercial terms or choose a vendor.
+
+An active Agent/Admin records a reasoned final selection or an explicitly provisional preference. Final snapshots freeze the exact offer/charge/calculation/FX/source/request/shipment/reviewer/decision evidence. The central OfferEligibility::pricingBasis gate checks current complete review, shipment/RFQ/comparison, vendor/contact, original file integrity and time-based validity. Provisional, expired or stale selections cannot provide pricing. No capture/extraction/review/selection action sends email. See [handoff](HANDOFF.md#phase-7-consumption-contract) for schema lrs-cost-basis-1 and Phase 7 integration.
+
+The latest user instruction is to use realistic dummy records until genuine company/mailbox details exist. The professional local preview is explicitly fictional, with reserved .example addresses, simulated website/email originals and vendor quotes. Existing QA evidence is retained. Company settings controls sample/real default; genuine incoming records remain separate. No real vendor endorsement, imported Outlook message, current FX rate or connected mailbox is claimed.
+
+## Phase 7 client quotation rules
+
+The complete authorized [Phase 7 brief](PHASE_7_BRIEF.md) is preserved. Staff price one immutable final Phase 6 selection; provisional, stale, incomplete or expired selections cannot be approved or released. Draft gaps remain visible. Nothing silently refreshes vendor costs. Every saved correction produces a new customer quotation revision and private PDF, preserving earlier evidence.
+
+One explicitly confirmed percentage markup applies only to the reviewed cost subtotal excluding vendor tax and unselected/optional charges. Selling subtotal = cost × (1 + markup / 100). Profit is estimated, and gross margin = profit / selling subtotal; zero selling yields no margin. Existing decimal-safe currency precision and half-up rounding apply, with cumulative line allocation keeping customer lines nonnegative and exactly balanced. Staff confirms tax evidence and treatment; LRS does not infer rates, recoverability or legal wording. Optional customer services remain separately priced and excluded, requiring a revised quote before acceptance.
+
+The private focused Blade PDF contains company/client identity, confirmed shipment summary, customer services, stated tax/total, deadline, staff-confirmed inclusions/exclusions/conditions and reply instructions. A local company monogram is the current logo placeholder. Vendor identity/evidence, raw assumptions, costs, markup, profit and internal notes are excluded through a customer-only projection. Deterministic editable email works with AI off.
+
+Date-only expiry means 23:59:59 in the frozen company timezone; an explicit datetime is exact local time. No quote can outlast its vendor rate. Approval freezes source/pricing/customer snapshots, actual private PDF identity/checksum/size, email, active client To/CC, actual From/sender/Reply-To, reviewer/time and digest. Admin and Agent share existing policies; no second-reviewer rule is invented.
+
+Approval is followed by separate explicit enqueue through Phase 5. Approval, generating a PDF or reconnecting a mailbox sends nothing. Current selection/shipment/expiry, active parties, approval/envelope digests and actual PDF bytes are checked at approval, enqueue and immediately before submission. Provider acceptance and Sent Item evidence never imply delivery or reading. Pending/uncertain earlier quote dispatches require cancellation/reconciliation; sending a later revision after an accepted quotation requires explicit linked resend authorization. Manual declarations exclude that approval from future provider release. Later phases must consume these immutable contracts and fresh eligibility hooks described in [HANDOFF](HANDOFF.md).
+
+## Phase 8 follow-up and attention rules
+
+The complete [Phase 8 brief](PHASE_8_BRIEF.md) is preserved. Automation starts disabled. Admin version-controls separate RFQ/client defaults; an Agent/Admin explicitly approves an exact parent revision, actual envelope, every template message/placeholder, optional exact manifest, calendar, cumulative cap, expiry and stop conditions. Review-each-message mode is an alternative requiring explicit approval at each due stage. Company policy approval alone never activates a plan.
+
+UTC due times use the frozen company timezone, selected working weekdays/hours and entered holidays. Initial intervals start from known accepted/observed send evidence or an explicitly activated manual declaration. Pending/uncertain originals cannot start reminders. Next intervals start from actual preceding acceptance; downtime allows only one overdue stage. Reminders never extend validity or alter prices/scope. Policy changes and parent revisions retain cumulative attempts; uncertain submission retains its reserved count.
+
+Exact vendor quote/question/decline stops that request. Exact human-reviewed client acceptance/decline/revision request/question stops client reminders without a booking. Out-of-office, potentially related unmatched/unreviewed messages, unfinished imports, stale/unhealthy sync and uncertain sending hold for staff. Bounces stop the approved address; no replacement contact is chosen. Current parent/selection/shipment, contact/staff, sender identity, inquiry status, expiry, attachment bytes, business window and cap are rechecked immediately before provider submission.
+
+PostgreSQL immutable approval/content/lineage and unique claims, after-commit jobs and the existing Phase 5 outbox enforce bounded execution. Internal attention tasks have owner, source and next action. Cap exhaustion creates “No response after approved follow-ups” without case closure, vendor selection or discount. Holds/stops/resolved tasks never automatically resume. [Phase 8 handoff](phase-8-handoff.md) defines recovery, manual acceptance, run commands and Phase 9/10 contracts. No Gmail or booking work is included.
+
+
+## Phase 10 client outcomes, reconfirmation and handoff rules
+
+The full [Phase 10 brief](PHASE_10_BRIEF.md) is preserved. Formal decisions belong to an exact immutable client quote; staff compares original source, PDF, total, revision and terms and verifies known authority and unconditional scope. Ambiguous, conditional, old, stale or expired acceptance attempts stay under review. Supplied references/PO are optional unless the company explicitly requires them. Actual decision time differs from recording/review time. Corrections append and preserve original source identity/history. Matching/AI labels cannot accept. Substantive matched questions stop exact reminders promptly before final review.
+
+Revision requests create actionable new-draft paths through existing wording versus material shipment/service/cost gates; declined mail never closes a case automatically. Explicit reasoned close/reopen actions remain audited. Material changes and hold/close/resume/reopen advance lifecycle identity so historical handoff approvals cannot revive silently.
+
+Unconditional acceptance opens a reconfirmation task, sends nothing and cannot book. Staff separately approves editable vendor content and actual envelope/files through the shared outbox. Actual reviewed vendor rate/scope/dates/capacity/identity/evidence produces Pending, Confirmed, Conditional, Changed or Unavailable append-only versions. Material changes require newly reviewed offer/selection, replacement client quote/approval and renewed agreement. Returning an old confirmation to Confirmed does not clear recorded material changes. Optional company freshness and supplied expiries are rechecked; no universal logistics age is prescribed.
+
+Admin versions practical service-dependent company prerequisites. Commercial acceptance, current matching shipment/selection, reviewed exact vendor agreement/capacity, applicable addresses, cargo evidence and active operations owner remain core gates. PO/deposit/exact supplied documents depend on explicit policy. Deposits are manually evidenced external facts, never payments. Only policy-whitelisted Admin operational contact/document exceptions with recorded authority/time/reason may show Conditional; none bypass commercial/cargo/owner gates.
+
+Private handoff revisions freeze accepted terms, selected cost/profit, shipment/vendor facts, checklist, contacts, owner, policy and dependency identity. Separate exact authorized approval freezes reviewer/time and immutable approved PDF bytes. Current release and queued booking instructions recheck parties, versions, evidence, current status/generation and freshness. Concurrent stale saves/approvals are blocked. Old exports and corrections remain historical.
+
+Handoff Ready, Handoff Approved and Handed to Operations stay separate from Booking Requested and Booking Confirmed. A provider send is only a request, with delivery unconfirmed. Actual vendor booking reference, agreed dates, contact, scope, evidence and recorder/time require explicit staff review; corrections append. Internal export is staff-only, never automatically forwarded. Phase 10 added no client portal, vendor API booking, payments or automatic negotiation; Phase 11 subsequently adds the reporting/pilot/operations package below. See [Phase 10 handoff](phase-10-handoff.md) for authority/configuration, flow, acceptance, local commands and reporting events.
+
+
+## Phase 11 reporting and operating contracts
+
+The full [Phase 11 brief](PHASE_11_BRIEF.md) is preserved. Active Admin/Agent staff use Operational reports with inclusive company-timezone receipt cohorts, current owner/status/source/vendor filters, 25-row pages and bounded authorized formula-safe CSV. Stable inquiry IDs and current quote/latest correction prevent revision/import/alternative inflation. Accepted ÷ (Accepted + Declined) excludes pending/expired/review states. Valid historical decisions are not erased by later quotation expiry. RFQ response uses actual send and exact meaningful matched incoming timestamps, excluding bounce/OOO/noise/copies. Native currencies remain separate; unknown timestamps/costs remain unknown.
+
+Financial metrics are selected vendor cost and quoted/estimated selling/profit, never collected revenue or realized profit. Approved currency totals use one current saved complete quote per case. Current actual handoff/booking evidence remains separate from fresh release eligibility and earlier bookings. AI estimates/usage, unknowns, held reservations and fictional/live runs remain separate.
+
+Only Admin can read Operations health or pause/resume outgoing business mail. Actual scheduler/health-worker observations, queue/failure identities, mailbox sync/reconnect, uncertain/exhausted mail, paused follow-ups and extraction/AI attention are displayed without tokens/source bodies. Shared Outlook/Gmail/reminder workers check global pause at preparation and the final submission boundary. A pause advances authorization generation; explicit resume never releases earlier work automatically. Exact current individual recovery/new reminder activation must still satisfy approvals, expiry, parties, bytes, response state and cumulative caps. Ambiguous/accepted evidence remains reconciliation-only.
+
+The actual same-device local PostgreSQL/private/PDF/key restore preserves all business/audit relationships and provider evidence under restore lockdown. Production backup retention, off-device key recovery, company RPO/RTO, genuine company/provider policies, supervision and hosting target remain unselected/unverified. [Phase 11 handoff](phase-11-handoff.md) records actual checks and readiness gaps; [Operations runbook](OPERATIONS_RUNBOOK.md) supplies local/maintenance/rollout/recovery instructions. Stop after Phase 11.

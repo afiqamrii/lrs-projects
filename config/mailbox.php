@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'google_client_id' => env('GOOGLE_CLIENT_ID'),
+    'google_client_secret' => env('GOOGLE_CLIENT_SECRET'),
+    'google_redirect_uri' => env('GOOGLE_REDIRECT_URI', rtrim(env('APP_URL', 'http://localhost:8000'), '/').'/settings/mailbox/google/callback'),
     'tenant_id' => env('OUTLOOK_TENANT_ID'),
     'client_id' => env('OUTLOOK_CLIENT_ID'),
     'client_secret' => env('OUTLOOK_CLIENT_SECRET'),

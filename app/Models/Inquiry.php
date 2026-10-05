@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Support\InquiryWorkflow;
 use App\Support\Shipment;
+use App\Support\WorkspaceData;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,6 +27,11 @@ class Inquiry extends Model
         return ['is_demo' => 'boolean', 'public_contact' => 'array', 'shipment' => 'array', 'received_at' => 'immutable_datetime', 'response_due_at' => 'immutable_datetime', 'shipment_revision' => 'integer', 'lock_version' => 'integer'];
     }
 
+    public function scopeWorkspace(Builder $query): Builder
+    {
+        return WorkspaceData::preview() ? $query->where('sample_set', WorkspaceData::SAMPLE_SET)->where('is_demo', true) : $query->where('is_demo', false);
+    }
+
     public function publicSubmission(): HasOne
     {
         return $this->hasOne(PublicSubmission::class);
@@ -38,6 +45,11 @@ class Inquiry extends Model
     public function mailboxConfirmed(): bool
     {
         return $this->mailboxVerifications()->where('email', $this->public_contact['email'] ?? '')->whereNull('invalidated_at')->whereNotNull('confirmed_at')->exists();
+    }
+
+    public function clientQuotation(): HasOne
+    {
+        return $this->hasOne(ClientQuotation::class);
     }
 
     public function client(): BelongsTo

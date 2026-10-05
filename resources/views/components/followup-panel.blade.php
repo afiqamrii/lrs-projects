@@ -1,0 +1,6 @@
+@props(['kind','approval'])
+@php
+$target=$kind.':'.($kind==='rfq'?$approval->revision->rfq_id:$approval->revision->client_quotation_id);
+$followup=\App\Models\FollowupPlan::with('authorization')->where('target_key',$target)->first();
+@endphp
+<section class="panel panel-pad"><p class="eyebrow">Thoughtful follow-up</p><h2 class="mt-3 section-title">{{ $followup?->state==='active'?'A bounded plan is active':'Keep staff in control' }}</h2><p class="hint">{{ $followup?->authorization?->mode==='automatic'?'Approved automatic':($followup?->authorization?'Review each message':'No activation') }} · {{ ucfirst($followup?->state??'Disabled until approved') }} · {{ $followup?->send_count??0 }} cumulative sends.</p>@if($followup?->next_due_at)<p class="mt-3 text-xs leading-6">Next: {{ \App\Support\Processing::time($followup->next_due_at) }}</p>@endif @if($followup?->reason)<p class="hint">{{ $followup->reason }}</p>@endif<x-button variant="secondary" class="mt-5 w-full" :href="route('followups.show',[$kind,$approval->id])">Review follow-up plan</x-button></section>

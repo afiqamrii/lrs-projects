@@ -1,0 +1,1 @@
+@props(['tone'=>'blue'])<span class="inline-flex rounded-full px-3 py-1 text-[11px] font-medium {{ $tone==='green'?'bg-[#e9f5ee] text-[#28734b]':($tone==='amber'?'bg-[#fff5e2] text-[#855600]':'bg-[#edf4ff] text-[#2863ab]') }}">{{ $slot }}</span>

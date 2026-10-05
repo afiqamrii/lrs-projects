@@ -33,10 +33,10 @@ document.querySelectorAll('[data-confirm-form]').forEach((form) => {
         if (form.dataset.confirmed) return;
         event.preventDefault();
         const dialog = document.getElementById('confirmation');
-        const trigger = document.activeElement;
+        const trigger = event.submitter ?? document.activeElement;
         dialog.querySelector('[data-confirm-message]').textContent = form.dataset.confirmForm;
         const accept = dialog.querySelector('[data-confirm-accept]');
-        const handler = () => { form.dataset.confirmed = 'true'; dialog.close(); form.requestSubmit(); };
+        const handler = () => { form.dataset.confirmed = 'true'; dialog.close(); form.requestSubmit(trigger instanceof HTMLButtonElement && trigger.form===form ? trigger : undefined); };
         accept.addEventListener('click', handler, { once: true });
         dialog.addEventListener('close', () => {
             accept.removeEventListener('click', handler);
@@ -82,3 +82,59 @@ if (document.querySelector('[role="alert"]')) {
     if (invalid) { invalid.focus(); invalid.scrollIntoView({block:'center'}); }
     else { const alert = document.querySelector('[role="alert"]'); alert.tabIndex = -1; alert.focus(); }
 }
+
+document.querySelectorAll('[data-offer-form]').forEach((form) => {
+ const list=form.querySelector('[data-charge-list]');
+ form.querySelector('[data-add-charge]')?.addEventListener('click',()=>{
+  const original=list.querySelector('[data-charge-row]');
+  if(!original||list.children.length>=50)return;
+  const row=original.cloneNode(true);
+  row.querySelectorAll('.field-error').forEach(error=>error.remove());
+  row.querySelectorAll('[aria-invalid]').forEach(input=>input.removeAttribute('aria-invalid'));
+  row.querySelectorAll('details').forEach(details=>details.open=false);
+  row.querySelectorAll('input,textarea').forEach(input=>{if(input.type==='checkbox')input.checked=false;else input.value='';});
+  row.querySelectorAll('select').forEach(select=>select.selectedIndex=0);
+  row.querySelector('input[type="hidden"]').value='line-'+crypto.randomUUID().split('-')[0];
+  row.querySelector('select[name$="[currency]"]').value=form.querySelector('[name="currency"]').value;
+  row.querySelector('select[name$="[state]"]').value='unpriced';
+  row.querySelector('select[name$="[basis]"]').value='flat';
+  list.append(row); renumber();
+  row.querySelector('input:not([type="hidden"])')?.focus();
+  form.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const renumber=()=>list.querySelectorAll('[data-charge-row]').forEach((row,index)=>{
+  row.querySelector('[data-charge-number]').textContent=String(index+1);
+  row.querySelector('[data-charge-key]').textContent=row.querySelector('input[type="hidden"]').value;
+  row.querySelectorAll('[name]').forEach(el=>el.name=el.name.replace(/^lines\[\d+\]/,'lines['+index+']'));
+  row.querySelectorAll('[id]').forEach(el=>el.id=el.id.replace(/^lines-\d+-/,'lines-'+index+'-'));
+  row.querySelectorAll('label[for]').forEach(el=>el.htmlFor=el.htmlFor.replace(/^lines-\d+-/,'lines-'+index+'-'));
+  row.querySelectorAll('[aria-describedby]').forEach(el=>el.setAttribute('aria-describedby',el.getAttribute('aria-describedby').replace(/^lines-\d+-/,'lines-'+index+'-')));
+ });
+ list.addEventListener('click',event=>{const button=event.target.closest('[data-remove-charge]');if(button&&list.children.length>1){button.closest('[data-charge-row]').remove();renumber();form.dispatchEvent(new Event('input',{bubbles:true}));}});
+});
+document.querySelectorAll('[data-fx-form]').forEach(form=>{
+ const currency=form.querySelector('[data-fx-currency]');
+ const refreshFx=()=>{
+  form.querySelectorAll('[data-fx-source]').forEach(section=>{
+   const same=section.dataset.fxSource===currency.value;
+   section.hidden=same;
+   section.querySelectorAll('input,select').forEach(input=>input.disabled=same);
+   section.querySelector('[data-fx-target]').value=currency.value;
+   section.querySelector('[data-fx-target-label]').textContent=currency.value;
+  });
+ };
+ if(currency){
+  refreshFx();
+  currency.addEventListener('change',()=>{
+   form.querySelectorAll('input[name^="fx["][type="checkbox"]').forEach(input=>input.checked=false);
+   refreshFx();
+  });
+ }
+});
+
+document.querySelectorAll('[data-inquiry-navigation]').forEach((navigation) => {
+    const current = navigation.querySelector('[aria-current="page"]');
+    if (current && matchMedia('(max-width:767px)').matches) {
+        navigation.scrollLeft = Math.max(0, current.offsetLeft - navigation.offsetLeft - 12);
+    }
+});

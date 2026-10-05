@@ -26,6 +26,7 @@ use App\Support\GraphMail;
 use App\Support\InquiryWorkflow;
 use App\Support\Mailboxes;
 use App\Support\MailRelease;
+use App\Support\OutboundControl;
 use App\Support\Processing;
 use App\Support\RfqContent;
 use App\Support\Shipment;
@@ -53,6 +54,8 @@ class MailDispatchTest extends TestCase
     private bool $timeoutSend = false;
 
     private bool $hideSent = false;
+
+    private bool $pauseAfterDraftVerification = false;
 
     protected function setUp(): void
     {
@@ -120,6 +123,11 @@ class MailDispatchTest extends TestCase
                 }
             }
 
+            if ($this->pauseAfterDraftVerification && $tail === '' && $request->method() === 'GET') {
+                $this->pauseAfterDraftVerification = false;
+                app(OutboundControl::class)->change(User::factory()->create(['role' => 'admin']), true, 0, 'Controlled pause after Outlook draft verification.');
+            }
+
             return Http::response(array_diff_key($this->drafts[$id], ['attachments' => true]));
         });
     }
@@ -164,6 +172,19 @@ class MailDispatchTest extends TestCase
     private function processDispatch(MailDispatch $d): void
     {
         (new DispatchMail($d->id))->handle();
+    }
+
+    public function test_emergency_pause_after_outlook_draft_verification_blocks_the_actual_send_boundary(): void
+    {
+        $dispatch = $this->enqueue($this->approved());
+        $this->pauseAfterDraftVerification = true;
+        $this->processDispatch($dispatch);
+        $this->assertSame('failed', $dispatch->fresh()->status);
+        $this->assertNotNull($dispatch->fresh()->provider_draft_id);
+        $this->assertNull($dispatch->fresh()->submission_started_at);
+        Http::assertNotSent(fn ($request): bool => str_ends_with(parse_url($request->url(), PHP_URL_PATH), '/send'));
+        $this->assertCount(1, $this->drafts);
+        $this->assertTrue(array_values($this->drafts)[0]['isDraft']);
     }
 
     public function test_three_vendors_have_individual_approved_envelopes_atomic_dispatches_and_exact_provider_recipients(): void
@@ -474,5 +495,17 @@ class MailDispatchTest extends TestCase
         $this->get(route('mail.preview', ['rfq', $a->id]))->assertOk()->assertSee('exceeds the configured verified tenant limit');
         $this->assertDatabaseCount('mail_dispatches', 0);
         Http::assertNothingSent();
+    }
+
+    public function test_outbound_default_gmail_does_not_reroute_an_authorized_outlook_message(): void
+    {
+        $d = $this->enqueue($this->approved());
+        $gmail = MailboxConnection::factory()->gmail()->create();
+        CompanySetting::current()->forceFill(['outbound_mailbox_id' => $gmail->id])->save();
+        $this->processDispatch($d);
+        $this->assertSame('accepted', $d->fresh()->status, $d->fresh()->last_error ?? '');
+        $this->assertSame($this->connection->id, $d->envelope->mailbox_connection_id);
+        $this->assertCount(1, $this->drafts);
+        $this->assertSame('outlook', $d->envelope->mailbox->provider);
     }
 }

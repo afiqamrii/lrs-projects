@@ -16,7 +16,7 @@ class MailboxFolder extends Model
 
     protected function casts(): array
     {
-        return ['cursor' => 'encrypted', 'page' => 'encrypted:array', 'enabled' => 'boolean', 'offset' => 'integer', 'failure_count' => 'integer', 'cycle' => 'integer', 'cycle_count' => 'integer', 'resync_count' => 'integer', 'import_from' => 'immutable_datetime', 'lease_until' => 'immutable_datetime', 'next_attempt_at' => 'immutable_datetime', 'last_sync_at' => 'immutable_datetime'];
+        return ['gmail_page_token' => 'encrypted', 'cursor' => 'encrypted', 'page' => 'encrypted:array', 'enabled' => 'boolean', 'offset' => 'integer', 'failure_count' => 'integer', 'cycle' => 'integer', 'cycle_count' => 'integer', 'resync_count' => 'integer', 'import_from' => 'immutable_datetime', 'lease_until' => 'immutable_datetime', 'next_attempt_at' => 'immutable_datetime', 'last_sync_at' => 'immutable_datetime'];
     }
 
     public function mailbox(): BelongsTo

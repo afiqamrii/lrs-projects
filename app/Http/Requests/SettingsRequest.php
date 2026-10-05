@@ -18,6 +18,7 @@ class SettingsRequest extends FormRequest
     {
         return [
             'rfq_reply_name' => ['nullable', 'string', 'max:255', 'not_regex:/[\r\n]/'], 'rfq_reply_email' => ['nullable', 'email:rfc', 'max:254', 'not_regex:/[\r\n]/'], 'rfq_signature' => ['nullable', 'string', 'max:3000'],
+            'workspace_data_mode' => ['sometimes', Rule::in(['real', 'samples'])],
             'display_name' => ['required', 'string', 'max:255'], 'timezone' => ['required', 'timezone:all'], 'currency' => ['required', Rule::in(['MYR', 'USD', 'SGD', 'EUR', 'GBP', 'CNY', 'JPY', 'AUD', 'THB', 'IDR'])],
             'public_intake_enabled' => ['sometimes', 'boolean'], 'public_service_intro' => ['sometimes', 'required', 'string', 'max:2000'],
             'public_contact_email' => ['nullable', 'email:rfc', 'max:254'], 'public_contact_phone' => ['nullable', 'string', 'max:64'], 'public_contact_address' => ['nullable', 'string', 'max:2000'],

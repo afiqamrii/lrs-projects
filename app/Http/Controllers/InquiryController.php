@@ -14,6 +14,7 @@ use App\Models\Inquiry;
 use App\Models\ShipmentVersion;
 use App\Models\User;
 use App\Support\Shipment;
+use App\Support\WorkspaceData;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -25,13 +26,19 @@ class InquiryController extends Controller
     public function index(Request $request): View
     {
         Gate::authorize('viewAny', Inquiry::class);
-        $filters = $request->validate(['q' => ['nullable', 'string', 'max:150'], 'status' => ['nullable', Rule::in(array_keys(Inquiry::STATUSES))], 'owner' => ['nullable', 'integer', 'exists:users,id'], 'priority' => ['nullable', Rule::in(['normal', 'urgent'])], 'client' => ['nullable', 'integer', 'exists:clients,id'], 'overdue' => ['nullable', Rule::in(['1'])], 'source' => ['nullable', Rule::in(array_keys(Inquiry::CHANNELS))], 'data' => ['nullable', Rule::in(['real', 'fixtures', 'all'])], 'unassigned' => ['nullable', Rule::in(['1'])]]);
-        $filters['data'] ??= 'real';
+        $filters = $request->validate(['q' => ['nullable', 'string', 'max:150'], 'status' => ['nullable', Rule::in(array_keys(Inquiry::STATUSES))], 'owner' => ['nullable', 'integer', 'exists:users,id'], 'priority' => ['nullable', Rule::in(['normal', 'urgent'])], 'client' => ['nullable', 'integer', 'exists:clients,id'], 'overdue' => ['nullable', Rule::in(['1'])], 'source' => ['nullable', Rule::in(array_keys(Inquiry::CHANNELS))], 'data' => ['nullable', Rule::in(['real', 'samples', 'fixtures', 'all'])], 'unassigned' => ['nullable', Rule::in(['1'])]]);
+        $filters['data'] ??= WorkspaceData::preview() ? 'samples' : 'real';
         $metricQuery = Inquiry::query();
+        if ($filters['data'] === 'samples') {
+            $metricQuery->where('sample_set', WorkspaceData::SAMPLE_SET);
+        }
         if ($filters['data'] !== 'all') {
-            $metricQuery->where('is_demo', $filters['data'] === 'fixtures');
+            $metricQuery->where('is_demo', in_array($filters['data'], ['fixtures', 'samples'], true));
         }
         $query = Inquiry::with('client', 'contact', 'owner')->withCount(['documents' => fn ($q) => $q->where('is_archived', false)]);
+        if ($filters['data'] === 'samples') {
+            $query->where('sample_set', WorkspaceData::SAMPLE_SET);
+        }
         if ($q = $filters['q'] ?? null) {
             $pattern = '%'.str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $q).'%';
             $query->where(fn ($b) => $b->where('reference', 'ilike', $pattern)->orWhere('title', 'ilike', $pattern)->orWhere('public_contact->email', 'ilike', $pattern)->orWhere('public_contact->company', 'ilike', $pattern)->orWhereHas('client', fn ($c) => $c->where('company_name', 'ilike', $pattern)));
@@ -42,7 +49,7 @@ class InquiryController extends Controller
             }
         }
         if ($filters['data'] !== 'all') {
-            $query->where('is_demo', $filters['data'] === 'fixtures');
+            $query->where('is_demo', in_array($filters['data'], ['fixtures', 'samples'], true));
         }
         if ($filters['unassigned'] ?? null) {
             $query->whereNull('owner_id');

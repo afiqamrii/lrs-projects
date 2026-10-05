@@ -57,6 +57,9 @@ class SaveInquiry
                 $record->lock_version++;
             }
             $record->save();
+            if ($material) {
+                app(ManageLifecycle::class)->stop($record, 'Material shipment or contact change requires renewed commercial review.', auth()->user());
+            }
             $details = $material ? ['shipment_hash' => ['before' => $oldHash, 'after' => $record->snapshotHash()]] : [];
             Audit::record($creating ? 'Inquiry created' : ($material ? 'Working shipment revised' : 'Inquiry details updated'), $record, $before, null, null, $details);
 

@@ -193,7 +193,7 @@ class PhaseOneTest extends TestCase
         $vendor = Vendor::firstOrFail();
         $this->get('/vendors/'.$vendor->id)->assertSee('A primary quotation contact is needed.');
         $this->get('/vendors?contact=missing')->assertSee('Straits Logistics');
-        $this->get('/overview')->assertOk()->assertSee('Missing quotation contacts');
+        $this->get('/overview')->assertOk()->assertSee('active vendor needs a quotation contact');
     }
 
     public function test_validation_rejects_bad_vendor_fields_and_preserves_input(): void
@@ -279,7 +279,7 @@ class PhaseOneTest extends TestCase
             ->assertViewHas('total', 4)
             ->assertViewHas('active', 2)
             ->assertViewHas('ready', 1)
-            ->assertViewHas('missing', 2);
+            ->assertViewHas('missing', 1);
         $this->get('/vendors?status=active&contact=ready')->assertSee('Ready Active')->assertDontSee('Inactive With Contact')->assertDontSee('Needs Contact');
         $this->get('/vendors?status=active&contact=missing')->assertSee('Needs Contact')->assertDontSee('Inactive Without Contact');
         $this->get('/vendors?status=inactive')->assertSee('Inactive With Contact')->assertSee('Inactive Without Contact')->assertDontSee('Ready Active');

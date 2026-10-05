@@ -15,12 +15,13 @@ use Illuminate\Validation\ValidationException;
 
 class Mailboxes
 {
-    public function configure(array $data): MailboxConnection
+    public function configure(array $data, ?MailboxConnection $connection = null): MailboxConnection
     {
         Gate::authorize('manage-company');
 
-        return DB::transaction(function () use ($data): MailboxConnection {
-            $c = MailboxConnection::whereKey(MailboxConnection::current()->id)->lockForUpdate()->firstOrFail();
+        return DB::transaction(function () use ($data, $connection): MailboxConnection {
+            $c = MailboxConnection::whereKey($connection?->id ?? MailboxConnection::current()->id)->lockForUpdate()->firstOrFail();
+            abort_unless($c->provider === 'outlook', 422);
             $c->fill($data);
             $c->forceFill(['tenant_id' => config('mailbox.tenant_id'), 'state' => 'disconnected', 'is_demo' => false, 'generation' => $c->generation + 1, 'access_token' => null, 'refresh_token' => null, 'expires_at' => null, 'refresh_lease' => null, 'refresh_until' => null, 'last_error' => null]);
             $c->identity_hash = $this->identity($c);
@@ -33,6 +34,10 @@ class Mailboxes
 
     public function identity(MailboxConnection $c): string
     {
+        if ($c->provider === 'gmail') {
+            return Processing::hash(['gmail', $c->id, $c->google_subject, $c->account_email, $c->from_alias, $c->target_name, $c->is_demo, $c->generation]);
+        }
+
         return Processing::hash([$c->tenant_id, $c->account_id, $c->account_email, $c->target_id, $c->target_email, $c->target_name, $c->mailbox_type, $c->send_mode, $c->is_demo, $c->generation]);
     }
 
@@ -41,16 +46,16 @@ class Mailboxes
         return 'offline_access User.Read Mail.ReadWrite Mail.Send'.($c->mailbox_type === 'shared' ? ' User.ReadBasic.All Mail.ReadWrite.Shared Mail.Send.Shared' : '');
     }
 
-    public function authorization(Request $request): string
+    public function authorization(Request $request, ?MailboxConnection $connection = null): string
     {
         Gate::authorize('manage-company');
-        $c = MailboxConnection::current();
+        $c = $connection ?? MailboxConnection::current();
         if (! config('mailbox.client_id') || ! config('mailbox.client_secret') || ! $c->tenant_id || ! $c->account_id || ! $c->target_id || ! $c->rights_confirmed) {
             throw ValidationException::withMessages(['connection' => 'Configure the Microsoft app, expected account, target and verified rights first.']);
         }
         $state = Str::random(64);
         $verifier = Str::random(96);
-        DB::table('mail_oauth_attempts')->insert(['state_hash' => hash('sha256', $state), 'user_id' => $request->user()->id, 'session_hash' => hash('sha256', $request->session()->getId()), 'verifier' => Crypt::encryptString($verifier), 'generation' => $c->generation, 'expires_at' => now()->addMinutes(10)]);
+        DB::table('mail_oauth_attempts')->insert(['mailbox_connection_id' => $c->id, 'provider' => 'outlook', 'state_hash' => hash('sha256', $state), 'user_id' => $request->user()->id, 'session_hash' => hash('sha256', $request->session()->getId()), 'verifier' => Crypt::encryptString($verifier), 'generation' => $c->generation, 'expires_at' => now()->addMinutes(10)]);
 
         return 'https://login.microsoftonline.com/'.$c->tenant_id.'/oauth2/v2.0/authorize?'.http_build_query(['client_id' => config('mailbox.client_id'), 'response_type' => 'code', 'redirect_uri' => config('mailbox.redirect_uri'), 'response_mode' => 'query', 'scope' => $this->scopes($c), 'state' => $state, 'code_challenge' => rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '='), 'code_challenge_method' => 'S256', 'login_hint' => $c->account_email]);
     }
@@ -67,8 +72,8 @@ class Mailboxes
 
             return $a;
         });
-        $c = MailboxConnection::current();
-        if ($attempt->generation !== $c->generation || $request->query('error') || ! is_string($request->query('code'))) {
+        $c = MailboxConnection::findOrFail($attempt->mailbox_connection_id);
+        if ($attempt->provider !== 'outlook' || $attempt->generation !== $c->generation || $request->query('error') || ! is_string($request->query('code'))) {
             throw ValidationException::withMessages(['connection' => 'Sign-in was cancelled or mailbox configuration changed. Start again.']);
         }
         $tokens = $this->exchange($c, ['grant_type' => 'authorization_code', 'code' => $request->query('code'), 'code_verifier' => Crypt::decryptString($attempt->verifier), 'redirect_uri' => config('mailbox.redirect_uri')]);
@@ -89,7 +94,7 @@ class Mailboxes
             $graph->call($c, 'GET', '/users/'.$c->account_id.'/mailFolders/sentitems', token: $tokens['access_token']);
         }
         DB::transaction(function () use ($attempt, $tokens): void {
-            $locked = MailboxConnection::whereKey(1)->lockForUpdate()->firstOrFail();
+            $locked = MailboxConnection::whereKey($attempt->mailbox_connection_id)->lockForUpdate()->firstOrFail();
             if ($locked->generation !== $attempt->generation) {
                 throw new GraphFailure(401);
             }
@@ -110,6 +115,7 @@ class Mailboxes
             throw new GraphFailure(in_array($r->status(), [400, 401], true) ? 401 : $r->status());
         }
         $tokens = $r->json();
+        $tokens['refresh_token'] = $tokens['refresh_token'] ?? $c->refresh_token;
         if (empty($tokens['access_token']) || empty($tokens['refresh_token']) || empty($tokens['expires_in'])) {
             throw new GraphFailure(401);
         }
@@ -121,7 +127,7 @@ class Mailboxes
     {
         $lease = (string) Str::uuid();
         $c = DB::transaction(function () use ($lease, $connection): MailboxConnection {
-            $c = MailboxConnection::whereKey(1)->lockForUpdate()->firstOrFail();
+            $c = MailboxConnection::whereKey($connection->id)->lockForUpdate()->firstOrFail();
             if (! $c->usable() || $c->identity_hash !== $connection->identity_hash || $c->generation !== $connection->generation) {
                 throw new GraphFailure(401);
             }
@@ -139,9 +145,9 @@ class Mailboxes
             return $c->access_token;
         }
         try {
-            $tokens = $this->exchange($c, ['grant_type' => 'refresh_token', 'refresh_token' => $c->refresh_token]);
+            $tokens = $c->provider === 'gmail' ? app(GmailOAuth::class)->exchange($c, ['grant_type' => 'refresh_token', 'refresh_token' => $c->refresh_token]) : $this->exchange($c, ['grant_type' => 'refresh_token', 'refresh_token' => $c->refresh_token]);
         } catch (GraphFailure $e) {
-            $changed = MailboxConnection::whereKey(1)->where('refresh_lease', $lease)->where('generation', $c->generation)->update(['refresh_lease' => null, 'refresh_until' => null] + ($e->status === 401 ? ['state' => 'paused', 'last_error' => $e->getMessage()] : []));
+            $changed = MailboxConnection::whereKey($c->id)->where('refresh_lease', $lease)->where('generation', $c->generation)->update(['refresh_lease' => null, 'refresh_until' => null] + ($e->status === 401 ? ['state' => 'paused', 'last_error' => $e->getMessage()] : []));
             if (! $changed) {
                 throw new GraphFailure(429, 3);
             }
@@ -149,7 +155,7 @@ class Mailboxes
         }
 
         return DB::transaction(function () use ($c, $tokens, $lease): string {
-            $latest = MailboxConnection::whereKey(1)->lockForUpdate()->firstOrFail();
+            $latest = MailboxConnection::whereKey($c->id)->lockForUpdate()->firstOrFail();
             if ($latest->generation !== $c->generation || ! $latest->usable()) {
                 throw new GraphFailure(401);
             }
@@ -165,18 +171,18 @@ class Mailboxes
     public function pause(string $reason, ?MailboxConnection $expected = null): void
     {
         DB::transaction(function () use ($reason, $expected): void {
-            $current = MailboxConnection::whereKey(1)->lockForUpdate()->firstOrFail();
+            $current = MailboxConnection::whereKey($expected?->id ?? MailboxConnection::current()->id)->lockForUpdate()->firstOrFail();
             if ($expected && ($current->identity_hash !== $expected->identity_hash || $current->generation !== $expected->generation)) {
                 return;
             } $current->update(['state' => 'paused', 'last_error' => $reason]);
         });
     }
 
-    public function changeState(string $action): void
+    public function changeState(string $action, ?MailboxConnection $connection = null): void
     {
         Gate::authorize('manage-company');
-        DB::transaction(function () use ($action): void {
-            $c = MailboxConnection::whereKey(1)->lockForUpdate()->firstOrFail();
+        DB::transaction(function () use ($action, $connection): void {
+            $c = MailboxConnection::whereKey($connection?->id ?? MailboxConnection::current()->id)->lockForUpdate()->firstOrFail();
             if ($action === 'resume' && $c->access_token) {
                 $c->update(['state' => 'connected', 'last_error' => null]);
             } elseif ($action === 'pause') {
@@ -193,7 +199,7 @@ class Mailboxes
     {
         foreach ([[$c->target_id, 'inbox', 'incoming'], [$c->target_id, 'sentitems', 'sent'], ...($c->account_sent_items && $c->account_id !== $c->target_id ? [[$c->account_id, 'sentitems', 'sent']] : [])] as [$mailbox,$name,$kind]) {
             $folder = app(GraphMail::class)->call($c, 'GET', '/users/'.$mailbox.'/mailFolders/'.$name);
-            MailboxFolder::firstOrCreate(['identity_hash' => $c->identity_hash, 'mailbox_id' => $mailbox, 'provider_id' => $folder['id']], ['mailbox_connection_id' => 1, 'name' => $folder['displayName'] ?? $name, 'kind' => $kind, 'import_from' => $c->import_from ?? now()]);
+            MailboxFolder::firstOrCreate(['identity_hash' => $c->identity_hash, 'mailbox_id' => $mailbox, 'provider_id' => $folder['id']], ['mailbox_connection_id' => $c->id, 'name' => $folder['displayName'] ?? $name, 'kind' => $kind, 'import_from' => $c->import_from ?? now()]);
         }
     }
 

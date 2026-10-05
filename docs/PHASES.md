@@ -1,5 +1,5 @@
 # LRS phase tracker
-Updated 5 October 2026. Build and verify functionality and polished UX together in every phase. The current authorization ends after Phase 5.
+Updated 5 October 2026. Build and verify functionality and polished UX together in every phase. The current authorization ends after Phase 11; planned local build phases are complete. Company/live production acceptance remains outstanding.
 
 | Phase | Deliverable | Status |
 |---|---|---|
@@ -9,12 +9,12 @@ Updated 5 October 2026. Build and verify functionality and polished UX together 
 | 3B | Digital text extraction, selective OCR, AI structured proposals, source evidence, review and usage accounting | Implemented locally; real OCR/fake-provider checks in HANDOFF, live AI unconfigured |
 | 4 | Manual vendor selection, deterministic RFQ drafts/AI wording, exact approvals, private output and manual dispatch evidence | Implemented locally; verification and acceptance recorded in HANDOFF |
 | 5 | Outlook mailbox setup, approved sends, inbound inquiries/replies, deduplication, matching, catch-up and recovery | Implemented locally; fixture verification recorded in HANDOFF; live Microsoft setup remains unverified |
-| 6 | Structured vendor offers, extraction review, equivalent-scope comparison, clarification and selection | Not started |
-| 7 | Client quotations: markup/fees, precise calculations, PDF rendering, revisions, approval and approved sending | Not started |
-| 8 | Approved reminders/escalation, business-day schedules, cancellation, reply checks and operational exception queue | Not started |
-| 9 | Gmail with the same workflow and verified provider-specific behavior | Not started |
-| 10 | Client acceptance/revisions/expiry and explicit booking/job handoff | Not started |
-| 11 | Reporting, production hardening, end-to-end pilot, backup/restore verification and deployment preparation | Not started |
+| 6 | Structured vendor offers, extraction review, equivalent-scope comparison, clarification and selection | Implemented locally; reviewed costs/selection, fictional business preview, test/browser evidence and acceptance in HANDOFF |
+| 7 | Client quotations: explicit percentage markup, precise calculations, private PDF/email, revisions, exact approval and approved sending | Implemented locally; pricing, immutable PDF/approval, fixture outbox and browser evidence recorded in HANDOFF; live Microsoft unverified |
+| 8 | Approved reminders/escalation, business-day schedules, cancellation, reply checks and operational exception queue | Implemented locally; fixture/browser/test evidence and acceptance in phase-8-handoff.md; live Microsoft unverified |
+| 9 | Gmail with the same workflow and verified provider-specific behavior | Implemented locally; shared/provider fixture tests, browser evidence, setup and acceptance in phase-9-handoff.md; live Google unconfigured |
+| 10 | Client decisions/revisions/expiry, vendor rate/capacity reconfirmation and controlled handoff/actual booking evidence | Implemented locally; verification, manual acceptance and local commands in phase-10-handoff.md; live operations remain unverified |
+| 11 | Reporting, production hardening, end-to-end pilot, backup/restore verification and deployment preparation | Implemented locally; defined reports/CSV, observed health/emergency pause, complete regression, isolated encrypted restore and runbook in phase-11-handoff.md; company/live/production verification remains pending |
 
 ## Phase 1 completion evidence
 - Fresh PostgreSQL application migration completed on 17.11; separate lrs_test migrations exercised by feature tests.
@@ -74,8 +74,73 @@ Updated 5 October 2026. Build and verify functionality and polished UX together 
 - Real inquiry/incoming queues and overview inquiry counts are the default. Website and Outlook sources remain distinct; labelled examples are separately filterable. User selected new website submissions and connected Outlook for genuine data. Fixture-to-real release and association are blocked; seven retained local acceptance inquiries remain explicitly synthetic. The temporary fixture connection was disconnected and its flag disabled.
 - Final complete PostgreSQL regression: **175/175 tests, 1,831 assertions**. Pint, Composer strict validation, Blade compilation, additive migration/status and production build passed. Desktop/390px/320px fixture browser flows, exact separate dispatches, incoming source review, audited matching and real default empty states were verified. Full and affected results, browser evidence, queue/scheduler/run instructions and the twelve-step manual checklist are in [HANDOFF](HANDOFF.md). No live Microsoft call, real imported email, real client/vendor send, deployment or pilot signoff is claimed.
 
-## Next phase — only when authorized
+## Phase 6 completion evidence
 
-Phase 6: reviewed vendor offers, comparable-cost calculations and agent selection. Consume exact MailMessage → RFQ revision → sourcing round/confirmed shipment lineage and private evidence. A received-quotation classification does not approve commercial prices. Later phases remain unstarted.
+- Additive batches 8–9 preserve prior evidence and enforce immutable source/commercial/comparison/selection contracts. BigDecimal and NUMERIC calculations use existing dependencies.
+- Exact vendor quotation capture, separate alternatives, idempotent import, reviewed charge/quantity/minimum/tax/FX handling, gap resolution, equivalent-cost cards and reasoned final/provisional selection are implemented together with responsive screens.
+- Quotation-only extraction/proposals reuse local evidence and shared budget controls. Manual review works with live AI off; provider contracts are fake-response tested.
+- Phase 7 receives schema lrs-cost-basis-1 only through current OfferEligibility::pricingBasis. Expiry, revised source/offer, shipment/RFQ/comparison changes, unavailable evidence and inactive vendor/contact block pricing without rewriting history.
+- Per latest user instruction, professional .example companies/contacts, website/email inquiry samples and practical vendor quotes replace legacy QA records in the default preview. Originals remain immutable; genuine website and future connected-Outlook records remain separate.
+- Verification: **202 PostgreSQL tests / 2,003 assertions passed**, including simultaneous PHP offer saves/selections, exact decimal/FX rules, source replacement and tampering, stale forms and explicit AI review. Production build, formatting, Blade and Composer checks are recorded in HANDOFF.
+- Actual browser acceptance covers capture/evidence/proposal correction/review, A/B/C ranking, reasoned selection/frozen history, later edit invalidation/renewed review, and desktop/390px/320px layouts. Live Outlook/AI and production pilot remain unverified.
+- The current [manual checklist and local run instructions](HANDOFF.md#phase-6-manual-acceptance-checklist) are ready for company acceptance.
 
-Recommended Codex coding setting: **GPT-6.1 Sol / Extra High**, when available. Runtime AI configuration remains a separate decision.
+
+## Phase 7 completion evidence
+
+- Additive migrations in batches 10–11 retain existing commercial/source data and enforce immutable quotation revisions, approvals, manual declarations and outbox source lineage.
+- One explicit percentage markup, reviewed FX/tax separation, currency precision, cumulative half-up selling-line allocation, separate optional prices and estimated profit versus margin are implemented through exact decimals.
+- Dedicated local Dompdf 3.1.6 rendering creates private one-file customer PDFs with whitelist projection and immutable SHA-256 approval. Every saved edit produces a new revision; no regeneration occurs at release.
+- Exact approval covers pricing, source, PDF, email, active client recipients, actual sender/Reply-To and human reviewer/time. Shared Phase 5 outbox provides separate explicit enqueue, fresh worker checks, idempotency, uncertain reconciliation and linked deliberate resends.
+- Complete PostgreSQL regression passed: **223 tests / 2,142 assertions**. After the final stale-form recovery fix, affected quotation/pricing tests passed again: **20 tests / 134 assertions**. Browser fixture sending, stale-rate release blocking, 390px/320px layouts and short/multi-page PDF visual inspection are recorded in [HANDOFF](HANDOFF.md), with the manual checklist and local run instructions. Live Microsoft/AI, production deployment and company pilot remain unverified.
+- Stop after Phase 7. No Phase 8 reminders, Gmail, acceptance automation, booking, payment or invoice work was added.
+
+## Phase 8 completion evidence
+
+- Additive batch 12 preserves existing source/commercial/quotation evidence and adds versioned disabled policies, exact immutable activations/stages, cumulative counts and owned internal attention tasks.
+- Automatic and review-each-message modes share UTC/company-timezone business calendars, explicit working hours/weekdays/holidays, expiry and fresh incoming-response checks. Human reviewed exact client responses stop reminders without any booking transition.
+- PostgreSQL uniqueness/short claims, after-commit jobs and final submission checks reuse the Phase 5 outbox. Duplicate/concurrent claims, late responses, cancellation, conservative uncertain counts, policy cap preservation and actual-acceptance scheduling are covered.
+- Final complete PostgreSQL regression: **266 tests / 2,357 assertions passed**, then **3 final affected tests / 37 assertions passed**. Formatting, production assets, Blade syntax and Composer checks passed. Fixture browser sending → question import → human review → stopped plan, desktop/390px/320px layouts and keyboard/error states were verified. Full evidence, limitations, manual checklist, local commands, recovery and Phase 9/10 contracts are in [Phase 8 handoff](phase-8-handoff.md).
+- No Gmail, booking, payment, campaign or automatic negotiation work was added. Local acceptance uses realistic fictional records; previous immutable history remains.
+
+## Final planned phase
+
+Phase 11 is now implemented and locally verified using the immutable outcomes/timestamps and release-versus-booking distinctions from Phase 10. See [Phase 11 handoff](phase-11-handoff.md) for current evidence, metrics, manual pilot checklist and remaining live/production checks. Stop after Phase 11; further work requires a defect or explicit enhancement request.
+
+
+## Phase 9 completion evidence
+
+- Additive mailbox provenance/routing, opaque Gmail IDs, exact MIME/draft/SENT evidence, encrypted OAuth/refresh and bounded Gmail history sync preserve Outlook and existing business records.
+- Admin connection/default/incoming/alias controls and shared staff review/outbox/reminder screens use the existing visual system and permissions.
+- Shared business approvals, private attachment integrity, pinned threads, conservative cross-source duplicates and human reminder stop/hold rules apply to both providers.
+- Complete PostgreSQL regression passed **292 tests / 2,558 assertions**, followed by **28 final affected tests / 208 assertions**. Pint, Composer, 169 compiled Blade views, production assets and browser fixture flows passed; desktop/390px/320px, keyboard, error/success and stopped-plan states were inspected. Fixture connections/policies are disabled, and all histories remain.
+- Complete test/browser results, local commands, exact scopes, operational recovery, manual acceptance and remaining live checks are recorded in [phase-9-handoff.md](phase-9-handoff.md). No live Google configuration or provider send was claimed in the Phase 9 record. Phase 10 is recorded below.
+
+
+## Phase 10 completion evidence
+
+- Additive lifecycle/lineage migration batches 17–18 preserve earlier sources, shipment/offer/quote versions, mailbox provenance, approvals and history. Immutable append-only decisions, confirmations, handoffs, exact operational messages and booking events use PostgreSQL lineage/unique/version guards.
+- Complete PostgreSQL regression passed **310 tests / 2,712 assertions**, then **29 final affected tests / 246 assertions**. Pint, Composer, 180 compiled Blade views and production build passed. Actual fixture acceptance/reconfirmation/handoff/booking and revised-rate/renewed-decision browser paths, desktop/390px/320px, keyboard, empty/error/success and private PDF pages were inspected. Fixture connections and polling are disabled, with all evidence preserved. Details and remaining live/manual checks are in [Phase 10 handoff](phase-10-handoff.md#verification-record).
+- Formal acceptance, vendor reconfirmation, private handoff approval, actual operations handoff and vendor booking evidence are separate human actions. Realistic .example data remains fictional; no live email or booking occurred.
+- Current manual acceptance and Windows run instructions are in [Phase 10 handoff](phase-10-handoff.md). This historical Phase 10 record precedes the completed local Phase 11 package below.
+
+
+## Phase 11 completion evidence
+
+- Additive batch 19 preserves existing records/batches and adds audited emergency outgoing controls, observed heartbeats, per-work authorization generations and targeted report/reply/AI indexes. No dependencies were added/upgraded.
+- Staff reports define received-date/current-state/outcome denominators, meaningful RFQ response times, approved exact native-currency economics and recorded AI usage/unknowns. Drilldowns, 25-row pagination, five-per-minute and 5,000-row formula-safe private CSV are implemented.
+- Measured guarded-test volume: 12,000 fictional inquiries, 3,000-case report cohort, 1,600 incoming messages and 40 RFQ revisions. Final page measurements were 126.12 ms / 14 SQL queries for reports and 1,186.74 ms / 15 queries for inbox. These are local measurements, not an SLA.
+- Admin health shows observed queue/scheduler/worker/mailbox/uncertainty/follow-up/extraction/AI evidence. Both providers and reminders honor emergency pause at the final boundary; resume cannot release old backlog, and ambiguous provider evidence remains reconciliation-only.
+- Actual AES-256-GCM/DPAPI-protected local restore into an isolated PostgreSQL/private namespace passed 52 private file hashes, 34 linked artifacts, 65 encrypted records, 19 business/audit counts and exact outbox-state preservation. Complete measured drill 11.520 seconds; source remained intact. Off-device production restore/retention/RPO/RTO remain pending.
+- Complete regression passed 324 tests / 2,862 assertions, followed by 27 affected tests / 259 assertions. Final export checks passed 5 tests / 64 assertions; browser evidence is in [Phase 11 handoff](phase-11-handoff.md). Pint, Composer validation/platform/audit, npm audit, Blade compilation and Vite build passed; audits reported no vulnerabilities.
+- The [operations runbook](OPERATIONS_RUNBOOK.md) covers local Windows commands, correct queues, supervised worker/scheduler preparation, secrets/private storage, backup policy decisions, recovery, rollout and compatible rollback. No hosting target or live provider/company pilot was supplied. The system is not production-ready while those material checks remain.
+- Stop after Phase 11. No speculative new phases, payments, invoices, automatic acceptance or vendor API bookings were added.
+
+
+## Final quality review and publication
+
+Authorized maintenance after Phase 11 corrected incomplete website-source rendering, inactive-contact readiness, provider status, audit navigation and CSV NUL handling. Shared inquiry tabs, reachable desktop account controls, calmer silver/blue surfaces, compact phone summaries and labelled scrolling tables/history complete the existing Apple-inspired direction. No additional phase or dependency change was introduced.
+
+Complete PostgreSQL regression passed **329 tests / 2,931 assertions**; final AI/extraction template checks passed **30 tests / 247 assertions**. Formatting, Blade compilation and production assets passed. Actual desktop/390px/320px rendering, native form/charge/menu behavior and remaining manual/live limits are recorded in [Phase 11 handoff](phase-11-handoff.md#final-workspace-quality-review).
+
+The user authorized [GitHub source publication](https://github.com/afiqamrii/lrs-projects) and live internet deployment. A compatible hosting account/project is still missing. The runbook and manual pilot checklist remain the deployment package; no working public application URL is claimed.

@@ -3,16 +3,23 @@
 namespace App\Jobs;
 
 use App\Actions\MailOutbox;
+use App\Actions\ManageFollowups;
+use App\Models\ClientQuotationRevision;
 use App\Models\Inquiry;
 use App\Models\InquiryDocument;
 use App\Models\MailboxConnection;
 use App\Models\MailDispatch;
 use App\Models\User;
 use App\Support\Audit;
+use App\Support\GmailFailure;
+use App\Support\GmailMail;
+use App\Support\GmailMime;
 use App\Support\GraphFailure;
 use App\Support\GraphMail;
 use App\Support\Mailboxes;
 use App\Support\MailRelease;
+use App\Support\OutboundControl;
+use App\Support\QuotationPdf;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -39,6 +46,13 @@ class DispatchMail implements ShouldQueue
             if (! $d || ! in_array($d->status, ['queued', 'preparing', 'ready'], true) || $d->lease_until?->isFuture() || $d->next_attempt_at?->isFuture()) {
                 return null;
             }
+            try {
+                OutboundControl::assertAvailable($d->outbound_epoch);
+            } catch (ValidationException) {
+                OutboundControl::holdDispatch($d);
+
+                return null;
+            }
             $d->update(['lease' => $lease, 'lease_until' => now()->addSeconds(360), 'attempts' => $d->attempts + 1]);
 
             return $d;
@@ -51,114 +65,160 @@ class DispatchMail implements ShouldQueue
         try {
             $staff = User::findOrFail($d->requested_by);
             $snapshot = app(MailRelease::class)->preflight($d->envelope, $staff);
-            $c = MailboxConnection::current();
+            $c = $d->envelope->mailbox;
             $s = $snapshot['content'];
             $env = $snapshot['envelope'];
-            $base = GraphMail::messages($env['target_id']);
-            if (! $d->provider_draft_id) {
-                if ($d->draft_started_at) {
-                    $items = $graph->correlated($c, $env['target_id'], $d->dispatch_key);
-                    if (count($items) !== 1 || empty($items[0]['isDraft'])) {
-                        $this->update($lease, ['status' => 'uncertain', 'last_error' => 'Draft creation ended without an exact persisted identity. Reconcile; do not create another draft.']);
-                        $outbox->event($d, 'uncertain', 'Unresolved draft creation. No automatic replacement or send.');
+            if ($c->provider === 'gmail') {
+                $gmail = app(GmailMail::class);
+                $mime = app(GmailMime::class);
+                $gmail->checkAlias($c);
+                if (! $d->provider_draft_id) {
+                    if ($d->draft_started_at) {
+                        $this->update($lease, ['status' => 'uncertain', 'last_error' => 'Gmail draft creation has an unknown outcome. Reconcile existing RFC correlation; no replacement draft.']);
 
                         return;
                     }
-                    $draft = $items[0];
-                } else {
-                    if (! $this->update($lease, ['status' => 'preparing', 'draft_started_at' => now()])) {
+                    $raw = $mime->build($d, $snapshot);
+                    if (! $this->update($lease, ['status' => 'preparing', 'draft_started_at' => now(), 'internet_id' => '<'.$d->dispatch_key.'@lrs.invalid>'])) {
                         return;
                     }
-                    $draft = $graph->call($c, 'POST', $base, [
-                        'subject' => $s['subject'], 'body' => ['contentType' => 'Text', 'content' => $s['body']],
-                        'toRecipients' => [$this->recipient($s['to'])], 'ccRecipients' => array_map($this->recipient(...), $s['cc']),
-                        'from' => $this->recipient($env['from']), 'replyTo' => [$this->recipient($env['reply_to'])],
-                        'internetMessageHeaders' => [['name' => 'X-LRS-Dispatch-ID', 'value' => $d->dispatch_key]],
-                        'singleValueExtendedProperties' => [['id' => config('mailbox.extended_property'), 'value' => $d->dispatch_key]],
-                    ]);
+                    $payload = ['raw' => GmailMime::encode($raw)];
+                    if (! empty($s['thread_provider_id'])) {
+                        $payload['threadId'] = $s['thread_provider_id'];
+                    }
+                    $created = $gmail->call($c, 'POST', '/drafts', ['message' => $payload]);
+                    if (empty($created['id']) || empty($created['message']['id'])) {
+                        throw new GmailFailure(0, 30, true);
+                    }
+                    if (! $this->update($lease, ['provider_draft_id' => $created['id'], 'provider_draft_message_id' => $created['message']['id'], 'provider_thread_id' => $created['message']['threadId'] ?? null])) {
+                        return;
+                    }
+                    $d = $d->fresh();
                 }
-                if (empty($draft['id'])) {
-                    throw new GraphFailure(0, 30, true);
-                }
-                if (! $this->update($lease, ['provider_draft_id' => $draft['id'], 'status' => 'preparing'])) {
+                $draft = $gmail->call($c, 'GET', '/drafts/'.rawurlencode($d->provider_draft_id).'?format=full');
+                $mime->verify($c, $draft['message'] ?? [], $snapshot, $d);
+                if (! $this->update($lease, ['status' => 'ready', 'provider_draft_message_id' => $draft['message']['id'], 'provider_thread_id' => $draft['message']['threadId'] ?? null, 'upload_state' => null])) {
                     return;
                 }
-                $d = $d->fresh();
-            }
-            $path = $base.'/'.rawurlencode($d->provider_draft_id);
-            $inventory = $this->inventory($graph, $c, $path);
-            $expected = $s['manifest'];
-            $remaining = $expected;
-            foreach ($inventory as $file) {
-                $index = null;
-                foreach ($remaining as $i => $item) {
-                    if ($item['name'] === $file['name'] && $item['size'] === $file['size'] && $item['mime'] === $file['mime'] && ! $file['is_inline'] && hash_equals($item['checksum'], $file['checksum'])) {
-                        $index = $i;
-                        break;
-                    }
-                }
-                if ($index === null) {
-                    app(MailRelease::class)->fail('The provider draft contains an extra, duplicate or changed attachment. It will not be sent.');
-                }
-                unset($remaining[$index]);
-            }
-            if ($remaining) {
-                $file = reset($remaining);
-                $doc = InquiryDocument::findOrFail($file['document_id']);
-                $bytes = Storage::disk('inquiry_documents')->get($doc->storage_path);
-                if (strlen($bytes) !== $file['size'] || hash('sha256', $bytes) !== $file['checksum']) {
-                    app(MailRelease::class)->fail('An approved file changed. No provider submission.');
-                }
-                if ($file['size'] < 3000000) {
-                    $graph->call($c, 'POST', $path.'/attachments', ['@odata.type' => '#microsoft.graph.fileAttachment', 'name' => $file['name'], 'contentType' => $file['mime'], 'contentBytes' => base64_encode($bytes)]);
-                } else {
-                    $upload = $d->upload_state;
-                    if ($upload && isset($upload['expires_at']) && CarbonImmutable::parse($upload['expires_at'])->isPast()) {
-                        $upload = null;
-                        $this->update($lease, ['upload_state' => null]);
-                    }
-                    if (! $upload || ($upload['document_id'] ?? null) !== $doc->id) {
-                        $session = $graph->call($c, 'POST', $path.'/attachments/createUploadSession', ['AttachmentItem' => ['attachmentType' => 'file', 'name' => $file['name'], 'size' => $file['size'], 'contentType' => $file['mime']]]);
-                        $upload = ['document_id' => $doc->id, 'url' => $session['uploadUrl'], 'expires_at' => $session['expirationDateTime']];
-                        if (! $this->update($lease, ['upload_state' => $upload])) {
+            } else {
+                $base = GraphMail::messages($env['target_id']);
+                if (! $d->provider_draft_id) {
+                    if ($d->draft_started_at) {
+                        $items = $graph->correlated($c, $env['target_id'], $d->dispatch_key);
+                        if (count($items) !== 1 || empty($items[0]['isDraft'])) {
+                            $this->update($lease, ['status' => 'uncertain', 'last_error' => 'Draft creation ended without an exact persisted identity. Reconcile; do not create another draft.']);
+                            $outbox->event($d, 'uncertain', 'Unresolved draft creation. No automatic replacement or send.');
+
                             return;
                         }
+                        $draft = $items[0];
+                    } else {
+                        if (! $this->update($lease, ['status' => 'preparing', 'draft_started_at' => now()])) {
+                            return;
+                        }
+                        $payload = [
+                            'subject' => $s['subject'], 'body' => ['contentType' => 'Text', 'content' => $s['body']],
+                            'toRecipients' => [$this->recipient($s['to'])], 'ccRecipients' => array_map($this->recipient(...), $s['cc']),
+                            'from' => $this->recipient($env['from']), 'replyTo' => [$this->recipient($env['reply_to'])],
+                            'internetMessageHeaders' => [['name' => 'X-LRS-Dispatch-ID', 'value' => $d->dispatch_key]],
+                            'singleValueExtendedProperties' => [['id' => config('mailbox.extended_property'), 'value' => $d->dispatch_key]],
+                        ];
+                        $draft = ! empty($s['thread_provider_id'])
+                            ? $graph->call($c, 'POST', $base.'/'.rawurlencode($s['thread_provider_id']).'/createReply', ['message' => $payload])
+                            : $graph->call($c, 'POST', $base, $payload);
                     }
-                    try {
-                        $session = $graph->upload($c, $upload['url'], 'GET');
-                    } catch (GraphFailure $e) {
-                        if (! in_array($e->status, [404, 410], true)) {
-                            throw $e;
-                        } $this->update($lease, ['upload_state' => null, 'next_attempt_at' => now()->addSecond()]);
-
+                    if (empty($draft['id'])) {
+                        throw new GraphFailure(0, 30, true);
+                    }
+                    if (! $this->update($lease, ['provider_draft_id' => $draft['id'], 'status' => 'preparing'])) {
                         return;
                     }
-                    $range = $session['nextExpectedRanges'][0] ?? '0-';
-                    $offset = (int) explode('-', $range)[0];
-                    $length = min(1048576, $file['size'] - $offset);
-                    if ($length <= 0) {
-                        throw new GraphFailure(400);
-                    }
-                    $result = $graph->upload($c, $upload['url'], 'PUT', substr($bytes, $offset, $length), 'bytes '.$offset.'-'.($offset + $length - 1).'/'.$file['size']);
-                    if ($result['status'] === 201) {
-                        $this->update($lease, ['upload_state' => null]);
-                    }
+                    $d = $d->fresh();
                 }
-                $this->update($lease, ['next_attempt_at' => now()->addSecond()]);
+                $path = $base.'/'.rawurlencode($d->provider_draft_id);
+                if (! empty($s['thread_provider_id'])) {
+                    $graph->call($c, 'PATCH', $path, ['subject' => $s['subject'], 'body' => ['contentType' => 'Text', 'content' => $s['body']], 'toRecipients' => [$this->recipient($s['to'])], 'ccRecipients' => array_map($this->recipient(...), $s['cc']), 'bccRecipients' => [], 'from' => $this->recipient($env['from']), 'replyTo' => [$this->recipient($env['reply_to'])]]);
+                }
+                $inventory = $this->inventory($graph, $c, $path);
+                $expected = $s['manifest'];
+                $remaining = $expected;
+                foreach ($inventory as $file) {
+                    $index = null;
+                    foreach ($remaining as $i => $item) {
+                        if ($item['name'] === $file['name'] && $item['size'] === $file['size'] && $item['mime'] === $file['mime'] && ! $file['is_inline'] && hash_equals($item['checksum'], $file['checksum'])) {
+                            $index = $i;
+                            break;
+                        }
+                    }
+                    if ($index === null) {
+                        app(MailRelease::class)->fail('The provider draft contains an extra, duplicate or changed attachment. It will not be sent.');
+                    }
+                    unset($remaining[$index]);
+                }
+                if ($remaining) {
+                    $file = reset($remaining);
+                    $doc = isset($file['quotation_revision_id']) ? ClientQuotationRevision::findOrFail($file['quotation_revision_id']) : InquiryDocument::findOrFail($file['document_id']);
+                    $bytes = isset($file['quotation_revision_id']) ? QuotationPdf::bytes($doc) : Storage::disk('inquiry_documents')->get($doc->storage_path);
+                    if (strlen($bytes) !== $file['size'] || hash('sha256', $bytes) !== $file['checksum']) {
+                        app(MailRelease::class)->fail('An approved file changed. No provider submission.');
+                    }
+                    if ($file['size'] < 3000000) {
+                        $graph->call($c, 'POST', $path.'/attachments', ['@odata.type' => '#microsoft.graph.fileAttachment', 'name' => $file['name'], 'contentType' => $file['mime'], 'contentBytes' => base64_encode($bytes)]);
+                    } else {
+                        $upload = $d->upload_state;
+                        if ($upload && isset($upload['expires_at']) && CarbonImmutable::parse($upload['expires_at'])->isPast()) {
+                            $upload = null;
+                            $this->update($lease, ['upload_state' => null]);
+                        }
+                        if (! $upload || ($upload['file_identity'] ?? ($upload['document_id'] ?? null)) !== ($file['quotation_revision_id'] ?? $doc->id)) {
+                            $session = $graph->call($c, 'POST', $path.'/attachments/createUploadSession', ['AttachmentItem' => ['attachmentType' => 'file', 'name' => $file['name'], 'size' => $file['size'], 'contentType' => $file['mime']]]);
+                            $upload = ['document_id' => $doc->id, 'url' => $session['uploadUrl'], 'expires_at' => $session['expirationDateTime']];
+                            if (! $this->update($lease, ['upload_state' => $upload])) {
+                                return;
+                            }
+                        }
+                        try {
+                            $session = $graph->upload($c, $upload['url'], 'GET');
+                        } catch (GraphFailure $e) {
+                            if (! in_array($e->status, [404, 410], true)) {
+                                throw $e;
+                            } $this->update($lease, ['upload_state' => null, 'next_attempt_at' => now()->addSecond()]);
 
-                return;
-            }
-            $draft = $graph->call($c, 'GET', $path.'?'.http_build_query(['$select' => 'id,isDraft,subject,body,toRecipients,ccRecipients,bccRecipients,from,sender,replyTo,internetMessageId']), text: true);
-            $this->verify($draft, $s, $env);
-            if (! $this->update($lease, ['status' => 'ready', 'internet_id' => $draft['internetMessageId'] ?? null, 'upload_state' => null])) {
-                return;
+                            return;
+                        }
+                        $range = $session['nextExpectedRanges'][0] ?? '0-';
+                        $offset = (int) explode('-', $range)[0];
+                        $length = min(1048576, $file['size'] - $offset);
+                        if ($length <= 0) {
+                            throw new GraphFailure(400);
+                        }
+                        $result = $graph->upload($c, $upload['url'], 'PUT', substr($bytes, $offset, $length), 'bytes '.$offset.'-'.($offset + $length - 1).'/'.$file['size']);
+                        if ($result['status'] === 201) {
+                            $this->update($lease, ['upload_state' => null]);
+                        }
+                    }
+                    $this->update($lease, ['next_attempt_at' => now()->addSecond()]);
+
+                    return;
+                }
+                $draft = $graph->call($c, 'GET', $path.'?'.http_build_query(['$select' => 'id,isDraft,subject,body,toRecipients,ccRecipients,bccRecipients,from,sender,replyTo,internetMessageId']), text: true);
+                $this->verify($draft, $s, $env);
+                if (! $this->update($lease, ['status' => 'ready', 'internet_id' => $draft['internetMessageId'] ?? null, 'upload_state' => null])) {
+                    return;
+                }
             }
             $allowed = DB::transaction(function () use ($d, $staff, $lease): bool {
+                OutboundControl::assertAvailable(lock: true);
+                if ($d->envelope->followup_stage_id) {
+                    app(ManageFollowups::class)->parentLocks($d->envelope->followupStage->plan);
+                }
                 $latest = MailDispatch::whereKey($d->id)->lockForUpdate()->firstOrFail();
                 if ($latest->lease !== $lease || $latest->status !== 'ready') {
                     return false;
                 }
                 app(MailRelease::class)->preflight($latest->envelope, $staff, true);
+                OutboundControl::assertAvailable($latest->outbound_epoch, true);
+                app(ManageFollowups::class)->beforeSubmission($latest);
                 $latest->update(['status' => 'submitting', 'submission_started_at' => $latest->submission_started_at ?? now()]);
                 app(MailOutbox::class)->event($latest, 'submitting', 'Frozen submission point reached. Later cancellation/disconnection cannot recall an in-flight request.');
 
@@ -167,15 +227,23 @@ class DispatchMail implements ShouldQueue
             if (! $allowed) {
                 return;
             }
-            if (! MailboxConnection::current()->usable()) {
+            if (! $c->fresh()->usable()) {
                 throw new GraphFailure(401);
             }
-            $response = $graph->call($c, 'POST', $path.'/send');
-            if (($response['status'] ?? null) !== 202) {
-                throw new GraphFailure(0, 30, true);
+            if ($c->provider === 'gmail') {
+                $response = $gmail->call($c, 'POST', '/drafts/send', ['id' => $d->provider_draft_id]);
+                if (empty($response['id']) || empty($response['threadId'])) {
+                    throw new GmailFailure(0, 30, true);
+                }
+                $this->update($lease, ['provider_sent_id' => $response['id'], 'provider_thread_id' => $response['threadId']]);
+            } else {
+                $response = $graph->call($c, 'POST', $path.'/send');
+                if (($response['status'] ?? null) !== 202) {
+                    throw new GraphFailure(0, 30, true);
+                }
             }
-            $this->update($lease, ['status' => 'accepted', 'accepted_at' => now(), 'last_error' => null, 'next_attempt_at' => now()->addSeconds(30)]);
-            $outbox->event($d, 'accepted', 'Graph accepted for processing (202). Delivery and reading remain unconfirmed.');
+            $this->update($lease, ['status' => 'accepted', 'accepted_at' => $d->envelope->followup_stage_id ? $d->envelope->followupStage->plan->clock() : now(), 'last_error' => null, 'next_attempt_at' => now()->addSeconds(30)]);
+            $outbox->event($d, 'accepted', $c->provider === 'gmail' ? 'Gmail returned a submitted message identity. Delivery and reading remain unconfirmed.' : 'Graph accepted for processing (202). Delivery and reading remain unconfirmed.');
             if ($d->envelope->clarification_id) {
                 DB::transaction(function () use ($d): void {
                     $i = Inquiry::whereKey($d->envelope->inquiry_id)->lockForUpdate()->firstOrFail();
@@ -183,7 +251,7 @@ class DispatchMail implements ShouldQueue
                     if ($i->status === 'needs_review' && $item->currentFor($i)) {
                         $before = Audit::snapshot($i);
                         $i->update(['status' => 'needs_client_information', 'lock_version' => $i->lock_version + 1]);
-                        Audit::record('Approved clarification accepted by Outlook; awaiting client information', $i, $before, systemActor: 'System / Outlook');
+                        Audit::record('Approved clarification accepted by mailbox; awaiting client information', $i, $before, systemActor: 'System / mailbox');
                     }
                 });
             }
@@ -204,7 +272,7 @@ class DispatchMail implements ShouldQueue
                 if (! $current->provider_draft_id) {
                     $this->update($lease, ['draft_started_at' => null]);
                 }
-                $this->update($lease, ['status' => $current->status === 'submitting' ? 'ready' : $current->status, 'next_attempt_at' => now()->addSeconds($e->retryAfter), 'last_error' => $e->getMessage()]);
+                $this->update($lease, ['status' => $current->status === 'submitting' ? 'ready' : $current->status, 'next_attempt_at' => now()->addSeconds($c->provider === 'gmail' ? max($e->retryAfter, min(3600, 30 * 2 ** min(6, $current->attempts - 1))) : $e->retryAfter), 'last_error' => $e->getMessage()]);
                 $outbox->event($d, 'throttled', 'Provider rejected this attempt. Retry-After '.$e->retryAfter.' seconds.');
             } elseif (! $current->submission_started_at && $current->provider_draft_id && ($e->status === 0 || $e->status >= 500) && $current->attempts < 6) {
                 $this->update($lease, ['status' => 'preparing', 'next_attempt_at' => now()->addSeconds(30), 'last_error' => $e->getMessage()]);

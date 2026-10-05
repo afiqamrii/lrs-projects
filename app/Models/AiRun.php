@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Support\AiSources;
+use App\Support\OfferProposal;
 use App\Support\Processing;
 use App\Support\RfqWording;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,6 +39,9 @@ class AiRun extends Model
 
     public function stale(): bool
     {
+        if ($this->purpose === 'vendor_quotation') {
+            return OfferProposal::stale($this);
+        }
         if ($this->purpose === 'rfq_wording') {
             return RfqWording::stale($this);
         }

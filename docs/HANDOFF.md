@@ -1,4 +1,299 @@
-# LRS handoff · Phase 5
+# Current handoff · Phase 11
+
+Final workspace quality review: **329 complete PostgreSQL tests / 2,931 assertions**, then **30 final AI/extraction tests / 247 assertions**, all passed. The inquiry crash, active-contact readiness, provider status/audit/CSV defects and shared desktop/mobile visual/navigation issues were corrected. See [the current review record](phase-11-handoff.md#final-workspace-quality-review) for browser evidence, manual acceptance and limitations. The user authorized [GitHub publication](https://github.com/afiqamrii/lrs-projects) and internet deployment; a compatible live Laravel hosting account/project remains missing. No public application URL is verified. Earlier results below remain historical Phase 11 evidence.
+
+The planned local implementation ends after **Phase 11**, completed 5 October 2026. Read [phase-11-handoff.md](phase-11-handoff.md) for defined staff reports, CSV, observed Admin health/emergency controls, actual encrypted isolated restore, manual pilot acceptance, verification evidence and remaining readiness gaps. The full request is [PHASE_11_BRIEF.md](PHASE_11_BRIEF.md). [Operations runbook](OPERATIONS_RUNBOOK.md) provides local startup, correct queues, Windows supervision, backup/recovery and reviewable deployment/rollback instructions.
+
+Complete PostgreSQL regression passed **324 tests / 2,862 assertions**, then **27 affected tests / 259 assertions**; final export checks passed **5 tests / 64 assertions**. Pint, Composer validation/platform/audit, npm audit, Blade compilation and Vite build passed. The actual isolated local restore verified 52 private files, 34 linked artifacts, 65 encrypted records and original provider evidence under lockdown. No source database was reset, dependency upgraded, real email sent, logistics booking created or production deployment performed.
+
+The complete flow remains website/manual/Outlook/Gmail intake → human shipment review → agent-selected vendor sourcing and reviewed cost → explicit client pricing/PDF/email approval → reviewed client outcome → vendor reconfirmation → separately approved private handoff → actual operations transfer → separately evidenced booking. Reports describe those facts; they never turn them into realized revenue or automatic release.
+
+Current local data is explicitly fictional and all previous evidence is retained. Live company/provider checks, supervised production processes, recoverable off-device backups/RPO/RTO, a hosting target and company pilot acceptance remain outstanding. **Not production-ready yet.** Stop after Phase 11; subsequent work is defects or explicitly requested enhancements. Earlier records below are historical phase evidence.
+
+# Earlier handoff · Phase 9
+
+The current implementation ends after **Phase 9**, completed 5 October 2026. Read [phase-9-handoff.md](phase-9-handoff.md) for Gmail/Outlook routing, Google scopes/setup, sync and recovery, verification, local run instructions, manual acceptance and Phase 10 continuation. The full request is [PHASE_9_BRIEF.md](PHASE_9_BRIEF.md). Historical handoffs below remain preserved.
+
+# Earlier handoff · Phase 8
+
+The current implementation ends after **Phase 8**, completed 5 October 2026. Read [the current Phase 8 handoff](phase-8-handoff.md) for approved follow-ups, cancellation/holds, staff attention, verification, manual acceptance, local run instructions, recovery and Phase 9/10 hooks. The full request is [PHASE_8_BRIEF.md](PHASE_8_BRIEF.md). Earlier records below are retained as historical evidence.
+
+# Earlier handoff · Phase 7
+
+Implemented on **5 October 2026 (Asia/Kuala_Lumpur)**. Authorization ends after Phase 7. Read the complete [Phase 7 request](PHASE_7_BRIEF.md), [project brief](PROJECT_BRIEF.md), [design system](DESIGN_SYSTEM.md) and [tracker](PHASES.md). Prior phase handoffs below are retained as historical records.
+
+## Phase 7 outcome and complete flow
+
+Staff can price an immutable reviewed final vendor selection, explicitly confirm percentage markup and tax, edit customer descriptions/terms/email, save a private PDF, inspect exact pricing/content/recipients/sender, approve an immutable revision, then explicitly enqueue through the existing outbox. An inquiry now has a **Client quotation** tab. Generating, saving, approving or reconnecting sends nothing automatically.
+
+The complete flow is **website/manual/Outlook intake → assess client/contact and responsibility → review evidence and clarify gaps → human-confirm shipment → manually select vendors → prepare separate RFQs → exact approvals and explicit dispatch/manual records → match incoming vendor replies → review commercial evidence → equivalent-cost comparison → reasoned final selection → explicit markup/customer terms → saved client PDF/email → exact human approval → explicit outbox enqueue → inspect provider evidence**. AI remains optional and cannot calculate commercial totals, approve, send or book.
+
+The preview remains **realistic fictional data**, as the user requested after confirming no genuine company/mailbox is available. Reserved .example contacts and the persistent sample labels remain. Originals, existing work, earlier quotation versions, approvals, cost selections and audits are preserved. No real customer/vendor email test occurred. The sample precision-components quote illustrates MYR 1,300 cost, 20% markup, MYR 1,560 selling total, MYR 260 estimated gross profit and 16.67% gross margin, with explicitly fictional zero-tax assumptions. These are verification inputs, not prescribed business rates.
+
+## Supported pricing and expiry rules
+
+- One percentage markup is accepted as a nonnegative decimal string, up to 1,000%, with at most eight fractional digits. Unsupported signs, exponents, floats and out-of-range inputs fail server validation. Staff must explicitly confirm it for each saved edit.
+- Only priced, nonoptional required-baseline source lines form the cost subtotal. Included services add no cost; unresolved required costs remain Phase 6 eligibility gaps. Optional vendor costs are never added automatically.
+- Vendor inclusive tax requires a stated or explicitly reviewed embedded rate and evidence. Native tax is separated before markup; exclusive stated tax also remains outside the cost subtotal. Staff explicitly determines recoverable/no-tax or nonrecoverable pass-through with evidence. Any pass-through is a separate customer-described unmarked charge. LRS makes no legal or recoverability determination.
+- Customer tax is either explicitly no tax or a stated exclusive percentage up to 100%, with evidence. It applies to selling subtotal plus any unmarked pass-through. Unknown treatment remains a blocking gap. No country-specific rate or legal wording is invented.
+- Frozen reviewed FX converts native source lines into the comparison/quotation currency; missing conversions block approval. Existing currency precision applies (e.g. MYR two decimals, JPY zero, KWD three). BigDecimal uses half-up at native tax separation, each reviewed FX conversion and currency totals.
+- Selling subtotal = eligible cost subtotal × (1 + markup / 100). Selling service amounts use cumulative half-up allocation so they remain nonnegative and sum exactly to that subtotal, including tiny/zero lines. Estimated gross profit is selling subtotal minus eligible cost; gross margin is that profit / selling subtotal × 100. Zero selling subtotal gives an unavailable margin, never division by zero. Figures precede other company expenses and are not realized revenue.
+- Up to ten explicitly entered customer optional flat-price lines are separately displayed and excluded from the total. Choosing them requires a revised quote confirming scope and applicable tax before acceptance.
+- Date-only expiry means **23:59:59 in the frozen company timezone**. An explicit datetime is exact local time, stored in UTC. It must not extend beyond the selected vendor deadline. A same-day date-only expiry can therefore exceed an 18:00 vendor expiry and is blocked; LRS never silently clamps or extends it. Issue date must be today or earlier and no later than expiry.
+- Drafts retain visible gaps and can be reviewed privately. Final approval/release requires a current complete final selection, valid human-confirmed scope, active parties, resolved tax/FX, explicit terms and a verified exact private PDF. A new revision must explicitly select a new cost basis; an existing quote never silently refreshes.
+
+## Revision, PDF and approval contracts
+
+Additive batches **10–11** introduce client_quotations, client_quotation_revisions, client_quotation_approvals and quotation_manual_sends, plus a nullable client quotation approval reference on the existing mail envelope. PostgreSQL enforces one quote per case, sequence/reference lineage, immutable revisions/approvals/manual declarations and exactly one approved source kind per envelope. Existing Phase 5/6 data and triggers remain. A rollback with client quotation envelopes is deliberately refused because removing the approved commercial source would break preserved mail evidence. Use forward migrations on populated installations.
+
+**ManageQuotation** serializes company/case/quote/selection and relevant vendor/client/contact/source records. An expected revision rejects stale browser edits rather than overwriting. Every save stores a new frozen source snapshot, inputs, pricing, customer-only projection and PDF. Validation or transaction failure compensates only the newly written PDF; previous files remain.
+
+Revision pricing uses schema **lrs-client-pricing-1** and retains exact cost lines, quantities/bases/native currencies, vendor tax, markup, selling lines, optional prices, stated customer tax, profit/margin, gaps and rounding. The full Phase 6 **lrs-cost-basis-1** selection is copied and pinned by ID/digest. Revision digest covers all commercial/customer inputs, source, state, reason, author/time, expiry, resend link and PDF path/SHA-256/size.
+
+**QuotationContent::customer** creates the separate **lrs-customer-quotation-1** whitelist. Company/client/active contact, issue/expiry, confirmed shipment quantities, customer service lines, selling/tax totals, staff-confirmed terms and reply instructions enter the PDF. Vendor identity/contact/original evidence/free-text quantity assumptions, costs, markup/profit, staff notes and AI evidence do not. Customer email uses staff-editable wording plus deterministic reference/revision, deadline, total and reply/booking qualification; it works with AI disabled.
+
+**QuotationPdf** uses maintained direct **dompdf/dompdf 3.1.6** and a focused A4 Blade template. Remote fetching, PHP and JavaScript are disabled; local resources are confined, and bundled DejaVu Sans supplies currency glyphs. Renderer temporary/font files and generated quotes are private. The current company initial monogram is a logo placeholder; no official logo was supplied. Customer terms and identity remain fictional until Admin supplies and the company approves real wording. See [Dompdf project](https://github.com/dompdf/dompdf) and [releases](https://github.com/dompdf/dompdf/releases).
+
+Private PDF links check inquiry membership, staff access, actual size and SHA-256, returning the exact saved bytes with private/no-store headers. Historical PDFs remain privately inspectable as evidence even when superseded. Sending never regenerates a PDF. Manifest is exactly one generated quotation PDF with quotation revision ID/version, name, MIME, size and checksum; vendor originals are never attached.
+
+Exact approval schema **lrs-client-approval-1** contains revision/source digests, private pricing, customer projection, final email, exact manifest, actual From/sender/Reply-To, pinned mailbox identity, reviewer identity and UTC approval time. A canonical approval digest freezes the entire snapshot. Human review also authorizes that exact envelope through Phase 5; the separate enqueue remains mandatory. A second identical approval is idempotent and retains the first reviewer. Changing any commercial/content/recipient/branding/terms input creates a new draft revision; earlier PDF and approvals do not mutate.
+
+## Authorization, sending and recovery
+
+Active Admin/Agent follow existing shared inquiry policies; owner is responsibility rather than exclusive access. No client/vendor accounts or second-reviewer requirement are added. Private routes reject guests/inactive staff and cross-case PDF IDs. Server validation and actions enforce the same rules outside the browser.
+
+QuotationEligibility::reasons/assert/approved applies current Phase 6 selection checks, immutable snapshot/digest, current quotation number, validity, confirmed terms, active client/contacts and exact PDF integrity. MailRelease::source('client_quote', approvalId, staff) consumes the approved snapshot; preview verifies the actual usable mailbox envelope and fixture/real provenance. MailOutbox authorize/enqueue and DispatchMail use the shared preflight, including a locked check immediately before the frozen submission point. Active human approval/envelope/send actors and exact actual sender are required.
+
+States map to existing dispatch evidence: **Draft → Needs review → Approved → Queued/Preparing/Ready/Submitting → Provider accepted → Sent Item observed**, with Expired, Superseded, Failed and Outcome uncertain kept distinct. Accepted (Graph 202) and observed never mean delivered/read. Frozen source invalidation or expiry before submission is a preparation/release block, with no submission timestamp. An ambiguous send outcome is never blindly retried.
+
+A pending or uncertain earlier quote dispatch blocks approving/releasing another revision until cancellation/reconciliation. A later quotation following accepted/observed communication requires an explicitly confirmed new revision linked to an earlier resolved quotation dispatch and a reason. The existing outbox idempotency key/lease/correlation and provider draft/attachment inventory protect duplicates. A manually declared actual communication is append-only, visibly labelled and excludes that approval from later provider enqueue. Reconnection never sends this history.
+
+## Phase 7 local run instructions
+
+Use the existing populated repository and .env. Do not reset the lrs database or replace its app key. If PostgreSQL is stopped:
+
+~~~powershell
+& .tools/pgsql/bin/pg_ctl.exe -D .tools/pgdata -l .tools/postgres.log -w start
+~~~
+
+The prepared cluster listens on 127.0.0.1:55432. In the repository root:
+
+~~~powershell
+$env:PHPRC = Join-Path (Get-Location) '.tools/php.ini'
+php .tools/composer.phar install --no-interaction
+php artisan migrate --no-interaction
+npm.cmd run build
+php artisan serve --host=127.0.0.1 --port=8000
+~~~
+
+Open /login, then an inquiry's **Client quotation** tab. Existing local staff credentials remain unchanged; there is no new production default password. Manual pricing/PDF needs no provider or worker. Keep the configured sample mode for fictional preview, or use Company settings / lrs:sample-workspace --real for genuine incoming queues without deleting samples.
+
+For configured mail/local extraction/optional AI, use separate terminals:
+
+~~~powershell
+$env:PHPRC = Join-Path (Get-Location) '.tools/php.ini'
+php artisan queue:work database --queue=mail,extraction,ai,default --tries=2 --timeout=330
+~~~
+
+~~~powershell
+$env:PHPRC = Join-Path (Get-Location) '.tools/php.ini'
+php artisan schedule:work
+~~~
+
+The existing Phase 5 maintenance schedules preparation retries/reconciliation; no quotation reminder schedule was added. Production PDF serving requires the saved private files and correct storage permissions, along with the PostgreSQL data and Laravel key used for encrypted approvals.
+
+MAILBOX_DEMO_ENABLED is for explicit local/testing acceptance only. A fixture mailbox must never be presented as a genuine connection. Live Microsoft tenant/app/server secret, mailbox rights/send mode/size limits and controlled real-mail acceptance still require actual configuration and testing. With no usable mailbox, draft/PDF/email review remains usable while exact actual-sender approval/enqueue explains the connection gap. AI configuration is optional and remains unset.
+
+Run tests **sequentially** on the guarded separate lrs_test database; never run destructive migrations on normal records:
+
+~~~powershell
+$env:PHPRC = Join-Path (Get-Location) '.tools/php.ini'
+php artisan test --compact
+php vendor/bin/pint --dirty --format agent
+php .tools/composer.phar validate --strict --no-interaction
+php artisan view:cache --no-interaction
+npm.cmd run build
+~~~
+
+## Phase 7 verification and remaining limits
+
+- The complete guarded PostgreSQL regression passed: **223 tests / 2,142 assertions**. After the final stale-form recovery fix, the affected quotation/pricing suites passed again: **20 tests / 134 assertions**. Separate PHP processes exercise simultaneous edits/approvals; one new version survives competing saves and one immutable approval survives competing reviewers.
+- Coverage includes markup versus margin, tax/FX gaps, currency precision and tiny/zero allocation, expiry (also after provider preparation), invalid selection/scope, approval supersession, private/scoped access, active authorized recipients/sender, exact PDF bytes/tampering, immutable PostgreSQL evidence, duplicate enqueue/jobs, manual exclusion, pending/uncertain outcomes and deliberate linked resends. Mail/HTTP fakes and isolated transport were used.
+- Composer strict validation, required Pint dirty formatting plus explicit formatting of new files, Blade cache compilation, additive migration/status, route inspection and git diff --check passed. Production Vite build passed (CSS 49.86 kB, JS 16.53 kB). Installed PDF renderer is Dompdf 3.1.6.
+- Actual Admin Chrome flow: current selected basis → draft/reviewed pricing → PDF/email/sender review → exact approval → explicit fixture enqueue. Saving a later rate draft blocked dispatch **#4** before provider preparation/submission. Original fictional prices were restored through a newly reviewed offer v6 and final selection **#3**, then quotation **revision 7** was approved and explicitly dispatched as **#5**, reaching fixture Provider accepted and Sent Item observed. Earlier versions, approval and failure history remain. No live Graph/SMTP message occurred.
+- Short one-page and long three-page PDFs were rendered with Poppler and visually inspected, including long client text, service descriptions, currency glyphs, total, optional prices, pagination, filled company monogram and repeated headers/footers on every page. The exact PDFs remain private. Inspection renders are ignored QA artifacts under .tools/phase7-shots; browser captures are in the owned agent-browser temporary screenshot directory. No external PDF renderer is mandatory for the application.
+- Desktop and 390px/320px quotation review/workbench inspection passed. Measured document widths equal each mobile viewport; native inputs have labels and unique IDs. Keyboard Tab reaches the skip link. A negative markup POST showed a focused readable server error, retained -1 and preserved approved revision 7. The no-selection case showed useful vendor-review guidance and no commercial price. The current browser error check returned no errors. This is not a full screen-reader/device/browser audit.
+- The temporary fixture mailbox is disconnected and MAILBOX_DEMO_ENABLED restored to false. Existing fixture send/source history is retained. Manual drafting and PDF review remain usable with missing real Microsoft configuration; exact actual-sender approval/release requires a usable matching mailbox.
+- One earlier isolated concurrency-test teardown triggered a local PostgreSQL backend termination/recovery at 03:24 Malaysia time. The cluster automatically recovered, normal records were preserved, and the test teardown was changed to disconnect instead of rolling back immutable commercial evidence. Subsequent concurrency, affected and complete regressions passed with no repeated recovery. Root cause of the native process termination is not independently established; this is not production stability or backup/restore verification.
+- **Unverified:** live Microsoft tenant/Exchange rights/attachment/Sent Items behavior and real send/import; real AI; normal-browser physical file saving; official company logo/contact/tax/legal/commercial terms; full accessibility/device matrix; public hosting, production deployment, backup/restore and company pilot acceptance. Authenticated PDF responses, browser rendering and byte/checksum integrity were verified; ordinary OS download saving remains a manual checklist item. Source uploads retain the existing unscanned label.
+
+## Phase 7 manual acceptance checklist
+
+Use labelled fictional records and the isolated fixture transport or explicitly authorized test mailbox. The company should repeat this checklist with its own reviewed terms and branding before a pilot.
+
+1. [ ] As Agent and Admin open Client quotation from a current eligible final selection. With no selection, confirm useful guidance to vendor review. Guests/inactive staff and a different inquiry's PDF ID must be denied.
+2. [ ] Enter cost 1,000 with 20% markup using a controlled no-tax fixture: selling 1,200, estimated profit 200, margin 16.67%. Check zero cost, currency precision and multiple tiny selling lines. Reject negative/exponent/out-of-range values on the server.
+3. [ ] Inspect exact included cost lines and quantities/bases. Optional/unselected vendor charges and vendor tax receive no markup. Unknown tax/FX remains a gap; explicit inclusive tax separation and unmarked pass-through use documented evidence.
+4. [ ] Save an incomplete draft and reopen it without loss. Resolve descriptions, explicit tax/markup confirmations, active client To/CC, issue/expiry and reviewed inclusions/exclusions/conditions, then save for review.
+5. [ ] Try date-only end-of-day beyond an earlier vendor deadline and an expired quote; approval/release must block. Confirm the displayed company timezone and exact deadline.
+6. [ ] Inspect short and multi-page PDFs: long client/service text, repeated company/ref/revision headers, footers/pages, currency glyphs, totals, optional services and booking qualification. Verify normal-browser Open PDF and Download PDF saves the same checksum/bytes.
+7. [ ] Confirm customer PDF/email exclude vendor identity/original files, cost/markup/profit, private notes and AI evidence. Review the editable email, reference, shipment, deadline, total and reply instructions.
+8. [ ] Review actual From/sender/Reply-To, exact active client recipients and one-file manifest. Approve explicitly. Confirm approval alone, creating a PDF and reconnecting enqueue no send.
+9. [ ] Explicitly enqueue through the shared outbox, process the isolated fixture, inspect Provider accepted/Sent Item observed without a delivered/read claim. Repeat the same action key/job; no second dispatch/submission.
+10. [ ] Change a reviewed vendor rate/shipment/selection, deactivate a recipient/reviewer, expire validity or remove/tamper the PDF after enqueue. Approval/enqueue/worker release must block; retain prior commercial evidence and no submission for preflight failure.
+11. [ ] Save a customer/pricing/terms/branding/recipient correction. Confirm a new immutable revision, old approval superseded, old PDF unchanged and concurrent/stale edits rejected. Current selection changes must be explicitly chosen.
+12. [ ] Exercise uncertain submission: reconcile existing provider evidence, never blindly resend. A pending/uncertain earlier send blocks another approval. After an earlier accepted/resolved send, explicitly link/confirm a deliberate new resend revision with a reason.
+13. [ ] Record only an actual outside-LRS communication. Confirm its manual label/history and exclusion from provider enqueue after connection. Provider-dispatched work cannot be silently relabelled as manually sent.
+14. [ ] On desktop and 390px/320px widths, verify native labels, keyboard focus, server error summary/input retention, unsaved-change warning, stacked editor/review/timeline and no page overflow. With Microsoft/AI unconfigured, draft/PDF review and helpful connection gaps must remain usable.
+
+## Phase 8/10 consumption hooks
+
+Do not rebuild prices from live fields or treat quote acceptance as booking. Later phases must consume ClientQuotationRevision source_snapshot/pricing/payload.customer/digest/expires_at, ClientQuotationApproval snapshot/digest/reviewer/time and the exact PDF manifest. A customer response must be related to an exact revision/dispatch, preserving original inbound evidence; Phase 7 does not automatically classify it as commercial acceptance.
+
+Use shared MailEnvelope source_key **client_quote:{approvalId}**, immutable content/envelope digests, MailDispatch dispatch_key/status/submission_started_at/accepted_at and MailEvent history. Provider acceptance is the start of possible follow-up policy consideration, not proof of delivery/read/acceptance. Manual declarations are separate evidence. Uncertain outcomes require reconciliation; pending, cancelled, failed-before-submission, superseded and expired work must not be treated as a successful customer send.
+
+Future follow-up or handoff actions must run fresh **QuotationEligibility::approved** plus **MailRelease::preflight**, consuming current **OfferEligibility::selectionReasons/pricingBasis**. They must account for inactive parties, hold/closure, changed shipment/vendor offer/comparison/selection, expiry, changed recipients/sender and missing/tampered private files. Historical snapshot remains inspectable but is never authority for stale release. Phase 8 needs new explicit approval for policies/schedules and escalation. Phase 10 needs explicit response/reconfirmation/booking authorization. Neither is implemented here.
+
+Stop after Phase 7. Recommended next development settings after authorization: GPT-6.1 Sol / Extra High.
+
+---
+
+# Earlier handoff · Phase 6
+
+Implemented and locally verified on **5 October 2026 (Asia/Kuala_Lumpur)**. Scope ends after Phase 6. Read the complete [Phase 6 brief](PHASE_6_BRIEF.md), [project brief](PROJECT_BRIEF.md), [design system](DESIGN_SYSTEM.md) and [tracker](PHASES.md). Previous handoffs below are historical; their stopping points describe earlier releases.
+
+## Phase 6 outcome and data decision
+
+Staff can capture vendor evidence against an exact approved RFQ, save and explicitly review immutable commercial versions, compare equivalent costs, record provisional preferences or finalize one eligible offer, and inspect its frozen vendor cost basis. These screens extend the existing inquiry workspace. Nothing in capture, extraction, review, comparison or selection sends email.
+
+The user confirmed that genuine company/mailbox details are not yet available and requested realistic dummy data. The local workspace now contains **clearly fictional professional samples**, with reserved .example addresses: four clients, five vendors, five inquiries spanning simulated website and email sources, and six initial quotations. Existing QA sources, confirmed shipments, approvals, selections and audit evidence are retained; old QA directory records were deactivated rather than deleted. A seventh, explicitly fictional pending sailing alternative was captured in the browser. There is no connected real Outlook mailbox, genuine imported email or fabricated claim that these businesses/quotations are real.
+
+The precision-components case demonstrates A: **MYR 1,050 known subtotal with unknown required delivery**, B: **MYR 1,150 complete**, C: **MYR 1,300 complete**. A is outside ranking; B is lowest comparable cost. C can be chosen for a documented timing/service reason. Other records demonstrate two separate USD per-container alternatives, explicit fictional USD × 4.5 MYR conversion, an expired CBM quote with a minimum charge, and incomplete customer requests. Optional insurance is excluded from the required baseline.
+
+Business preview is selected in Company settings. A persistent banner and per-record sample labels distinguish fictional evidence. Inquiry/mail filters offer real records, professional samples, legacy fixtures and all records. New genuine website submissions stay separate; switching the default to real does not delete samples. No staff passwords are created or changed by the sample loader.
+
+## Models, states and evidence
+
+| Contract | Purpose |
+|---|---|
+| VendorOffer | Inquiry/vendor/sourcing round/exact RFQ revision/confirmed shipment version, separate alternative, immutable original source and source-identity hash |
+| VendorOfferRevision | New numbered record per save, immutable commercial payload, deterministic calculation/gaps, quoted and calculated totals, digest, author/reviewer/time/reason |
+| VendorOfferCharge | Typed NUMERIC rate/quantity/minimums/amount plus exact line evidence for each saved version |
+| OfferComparison | Immutable shipment/currency/explicit FX version, digest, staff reason and time |
+| OfferSelection | Immutable exact offer/comparison/shipment/source/charge/FX cost basis; final or provisional; one active selection per inquiry |
+| AiRun purpose vendor_quotation | Exact offer-revision binding, quotation-only selected sources, existing provider/schema/budget/reservation/review contracts |
+
+States: a captured source is **Draft**; saved draft is **Needs Review**; explicit review produces **Reviewed with Gaps** or **Reviewed Complete**. Older commercial versions and expressly replaced vendor sources are **Superseded**. Review completeness is separate from current eligibility: a complete quote can expire, become stale or lose its active vendor/contact/evidence.
+
+Source kinds are manual commercial note, matched vendor email, and private vendor quotation document. Manual source wording is retained; emails retain their exact message/hash/RFQ lineage; files retain original ID/name/version/checksum/classification. Vendor association requires a human explanation and confirmation. Customer invoices, packing lists and client RFQs are rejected as vendor commercial evidence. Questions/other email are used only through deliberate capture. Old RFQ replies retain their original shipment/request binding and remain outside current ranking.
+
+Re-import of the same exact request/source/alternative returns the existing offer. Alternatives from one vendor are separate records. For an expressly revised vendor quotation, capture a new source and name the earlier offer it replaces; history and any old selection stay intact. Editing/reviewing the replaced source is blocked. Saving corrected fields on the same source creates a new commercial revision instead. Stale expected-revision/comparison/selection values are rejected and retained after errors.
+
+PostgreSQL guards immutable offer sources, commercial payloads/calculations/charge evidence, comparisons and selections. Only current-version pointers, supersession status and one-way selection supersession metadata may change. Case locks serialize competing saves/selections; active vendor/contact facts are rechecked before finalization. Normal database migrations **batches 8–9** are additive: foundation plus a safe trigger repair. No new dependency, frontend framework, backend or mandatory infrastructure was introduced.
+
+## Deterministic calculation rules
+
+Money and rates use decimal strings and PostgreSQL NUMERIC(30,8), with existing **Brick Math 1.0.0 BigDecimal**; no floating-point money arithmetic. Entered values accept non-negative decimals up to twelve integer digits and eight decimal places, with bounded calculated amounts. Exact derived billing quantities/calculation evidence remain in immutable JSON; typed quantity columns use eight decimal places.
+
+Supported bases: flat (one), per CBM from explicitly reviewed calculated or declared confirmed volume, per kg, per tonne, per exact container type/count, vendor-defined weight/measurement, or an explicit custom unit/quantity. Package group weight is already the group total; it is not multiplied by package count. W/M requires explicit vendor kg-per-unit and CBM-per-unit definitions, then uses their maximum. No universal W/M conversion is assumed. Minimum billable quantity and minimum monetary charge apply separately; a stated billing increment rounds quantity upward.
+
+Currency precision: JPY/KRW zero places; KWD/BHD/OMR three; MYR/USD/SGD/EUR/GBP/AUD/CNY/HKD/THB/IDR two. Half-up rounding occurs for each native charge, stated additional tax and currency conversion. FX division retains sixteen places before final currency rounding. Reconciliation tolerance is **one minor currency unit**. The vendor's original quoted subtotal/total stays separate; a material discrepancy remains a gap. If no total was stated, staff retain that evidence rather than inventing a vendor total.
+
+Priced, included, not applicable, excluded, missing and applicable-but-unpriced are distinct. Included lines reference a real priced baseline line and add no second amount. Stable line keys survive UI row removal; duplicate source locators/keys and invalid included references are blocked. Required baseline is freight, explicitly requested services, and pickup/delivery implied by confirmed door scope. No universal charges are imposed. A required excluded/unpriced amount remains incomplete unless an explicitly reviewed full-cost arrangement supplies its complete evidenced cost. Optional services stay separate and do not increase the baseline. Zero requires explicit supporting evidence.
+
+Tax treatment must be stated and reviewed. Inclusive amounts are already inclusive; exclusive tax uses only the stated rate; unknown tax remains unresolved. No tax law/rate is inferred. Material route/mode/scope/quantity assumptions, payment, timing and capacity conditions require human confirmation. Transit is estimated, not a booking or guaranteed arrival.
+
+Original line currencies stay visible. Mixed-currency lines require explicit reviewed conversion to the offer currency or remain incomplete. Comparison FX requires from/to, direction (multiply or divide), positive rate, date, source and human confirmation. Missing FX never becomes 1 or a lowest-price label. Same-currency amounts need no conversion. All indicative conversion inputs are frozen; no live FX service is required. Reference: [PostgreSQL exact numeric documentation](https://www.postgresql.org/docs/current/datatype-numeric.html).
+
+## AI and source review
+
+Local extraction reuses Phase 3B's private document blocks/rows/pages and selective OCR. Only linked vendor quotation text/files enter quotation proposals; customer documents/budgets are not automatic commercial inputs. Originals and extracted-source integrity are checked again. Raw PDFs are not sent to AI by default.
+
+The quotation prompt/schema is quotation-1 (Responses strict format vendor_quotation_v1); it proposes permitted commercial fields and charge fields only, with source ID, exact snippet and uncertainty. It cannot calculate/approve totals, choose vendors, add markup or authorize actions. Source instructions are untrusted. Unknown/unsupported values remain unresolved; acceptance requires supporting text and no uncertainty; numeric rates/totals additionally must appear in the cited snippet as the same exact decimal (including standard thousands grouping), or a staff correction with reason. Explicit accept/correct/reject decisions create only a new draft. Every commercial section and line then needs renewed human review.
+
+The paid-scope preview reuses shared run/inquiry/day limits, reservations, idempotency and uncertain-cost holds. Unchanged runs are reused; queued stale sources/revisions release unused reservations before HTTP. No live API key/model configuration exists locally. The seeded proposal is explicitly a fictional no-provider fixture; adapter, schema and accounting behavior were tested with fake provider responses.
+
+## Phase 7 consumption contract
+
+Consume **OfferSelection.snapshot**, schema **lrs-cost-basis-1**, only through:
+
+- App\\Support\\OfferEligibility::selectionReasons($selection): current rejection reasons.
+- App\\Support\\OfferEligibility::pricingBasis($selection): immutable array or ValidationException if currently ineligible.
+
+The snapshot contains exact inquiry/shipment version and snapshot/hash, sourcing round, RFQ revision and payload, vendor ID/name/alternative, offer revision/number/digest, reviewed commercial fields, complete charge calculation (including optional issues), original source references, comparison ID/currency/FX/digest/total, reviewer, selector/time/reason and unresolved reasons for provisional records. OfferSelection.digest is the canonical SHA-256. It contains **vendor cost**, no markup or client selling price.
+
+Routes require active staff policy. Eligibility refetches current facts: confirmed current ready shipment/hash, current reviewed complete offer, no source replacement, exact current approved RFQ, active vendor/request contact, available unchanged private source files, resolved dated vendor validity, current comparison/version and required FX. It rechecks expiry at opening/finalization and whenever pricingBasis is called; no nightly job is needed. Unknown/open-ended validity needs a dated vendor-confirmed resolution with retained evidence. No generic override makes unknown required costs complete.
+
+A provisional record is always unusable for pricing. New offer review, replacement source, shipment/RFQ/comparison changes, deactivation or expiry can invalidate a previously final selection while preserving its frozen snapshot. Phase 7 must invoke this gate at pricing and every later approval/release, use a new selection after material changes, and retain old history. No Phase 7 implementation was added.
+
+## Phase 6 local run instructions
+
+From C:\\Users\\afiqa\\LRS\\lrs-projects, keep the existing ignored .env, database and private originals. The prepared PostgreSQL cluster listens only on 127.0.0.1:55432; **never reset the populated lrs database**. If stopped:
+
+~~~powershell
+& .tools/pgsql/bin/pg_ctl.exe -D .tools/pgdata -l .tools/postgres.log -w start
+~~~
+
+Web terminal:
+
+~~~powershell
+$env:PHPRC = Join-Path (Get-Location) '.tools/php.ini'
+php artisan migrate --no-interaction
+npm.cmd run build
+php artisan serve --host=127.0.0.1 --port=8000
+~~~
+
+Existing server may already occupy port 8000. Open /login, then an inquiry's **Vendor quotations** link. Current sample comparison: http://127.0.0.1:8000/inquiries/8/offers. Staff credentials remain unchanged and private. On a fresh installation create an Admin with php artisan lrs:admin; no default password is seeded.
+
+Optional extraction/AI/mail worker, separate terminal:
+
+~~~powershell
+$env:PHPRC = Join-Path (Get-Location) '.tools/php.ini'
+php artisan queue:work database --queue=mail,extraction,ai,default --tries=2 --timeout=330
+~~~
+
+Manual offer review/comparison/selection needs no worker/provider. The existing mail scheduler (php artisan schedule:work) is needed only for configured mailbox maintenance; its absence does not imply a connected Outlook mailbox. See historical Phase 5 setup below for Microsoft requirements.
+
+Optional **local/testing-only** fictional preview:
+
+~~~powershell
+php artisan lrs:sample-workspace --apply --no-interaction
+php artisan queue:work database --queue=extraction --stop-when-empty --tries=2 --timeout=330
+~~~
+
+The idempotent loader switches to preview, configures fictional company contact and disables receipt mail, adds samples and preserves history; do not use it for production setup. Company settings or lrs:sample-workspace --real selects real queues without deletion. --align-validity repairs only known fictional preview deadline inputs from their preserved explicit source date, through audited new revisions; it does not rewrite originals or arbitrary real offers.
+
+## Phase 6 verification and remaining limits
+
+The full PostgreSQL regression passed **202/202 tests, 2,003 assertions**. Final quotation feature checks also passed **17/17 tests, 133 assertions**. The full run includes the separate-process concurrent offer-save/selection story. Required Pint --dirty --format agent, explicit formatting of new PHP files, Composer validate --strict, Blade view:cache, additive migration status, quotation routes and the Vite production build passed. Final assets: CSS 49.61 kB, JS 16.53 kB. The normal lrs database retains batches 1–9 and existing evidence; tests use only guarded lrs_test. No remaining failing code check is known.
+
+Real browser verification covered original private CSV extraction rows/source email links, explicit proposal correction/rejection, renewed commercial review, the A/B/C ranking, reasoned final selection, frozen cost basis, later draft invalidation and preserved history, renewed review/selection, and new alternative capture. Desktop and 390px/320px views, charge-row identifiers, explicit FX controls, focus/navigation and error states were inspected. Changing the FX target cleared old confirmation; an unconfirmed conversion was rejected with a readable field error and left comparison #2 unchanged. The expired sample had no finalization action, and public intake contained no vendor prices. An unsaved-change dialog stalled one isolated automation session during discard/navigation; a fresh session completed the remaining checks. All user browser tabs were preserved. Browser expiry is shown on the expired sample; time-travel tests prove selected-rate expiry blocks pricing. Stored source-file responses/privacy are covered by server tests; physical download saving in a normal browser remains a manual check.
+
+Local ignored browser evidence: [desktop comparison](../.tools/phase6-shots/screenshot-1791138934732.png), [split source/commercial review](../.tools/phase6-shots/screenshot-1791139158372.png), and [320px saved cost basis](../.tools/phase6-shots/screenshot-1791137732877.png). These files are workspace evidence, not repository dependencies.
+
+No live Microsoft connection/import/send, real AI request or current-market FX verification occurred. Public internet hosting and production pilot/signoff are unverified. Originals remain **unscanned**: MIME/structure checks do not replace malware scanning. Complex/scanned quotation layouts retain Phase 3B OCR/extraction limitations and require manual review. The referenced testing-best-practices skill is unavailable in the installed skill catalog; meaningful PHPUnit and existing separate-process fixtures were used.
+
+## Phase 6 manual acceptance checklist
+
+1. Sign in as active Agent/Admin. Open Vendor quotations from an inquiry; guests/inactive staff must have no private access.
+2. Inspect the precision-components A/B/C samples: A known 1,050 with required delivery unresolved, B complete 1,150 lowest comparable, C complete 1,300. No missing amount or optional insurance is folded into a final baseline.
+3. Capture a manual note, matched vendor email or private quotation against one exact approved RFQ. Confirm source/vendor association and separate alternative. Re-import unchanged evidence and confirm no duplicate/replacement.
+4. Inspect immutable original email, private document and extracted row/page evidence beside commercial fields. Confirm client invoice/packing-list evidence cannot be used as vendor costs.
+5. With AI disabled, complete manual review. Where proposals exist, correct/reject/accept individually, save only a draft, then explicitly confirm every commercial section and line.
+6. Exercise flat, per-CBM, minimum quantity versus minimum charge, exact container count and explicitly defined W/M/custom rules. Check quantity/rate/minimum/tax breakdown. Verify included/optional/zero/unknown costs and quoted-total discrepancy behave visibly.
+7. Enter fictional USD × 4.5 MYR FX with date/source/direction and confirmation. Test reverse direction and missing FX. Inspect preserved native costs and frozen conversions; do not treat fixture rates as market data.
+8. Resolve required unknown charges through evidenced cost lines, or leave Reviewed with Gaps. Mark provisional and confirm it remains ineligible for Phase 7. A single complete quote may be finalized without requiring three.
+9. Select an eligible exact version with a reason, including a higher comparable cost if justified. Confirm the dialog, inspect immutable charge/source/FX/shipment/RFQ/reviewer/decision snapshot; no email is sent.
+10. Open a second stale form and save a new revision in the first. Reject the stale save. Edit/replace a selected quote, change comparison/shipment or deactivate its vendor/contact; old snapshot remains readable but cannot supply current pricing.
+11. Check dated expiry and unresolved/open-ended validity. Expired rates stay visible outside ranking; a new vendor-confirmed dated resolution needs review, never an invented deadline.
+12. Check mobile cards/forms/source navigation at 390px and 320px, keyboard focus/dialogs, private-file normal-browser saving, inline/error summary and success feedback. Visit public /request-quote and ensure no vendor prices or staff evidence appear.
+13. Inspect preview labels on company/client/vendor/inquiry/email records, then select Real records in settings or use --real. Genuine website and later connected-Outlook intake remain separate; samples and older QA evidence are retained.
+
+**Stop after Phase 6.** Next, only upon authorization, is Phase 7: agent-controlled markup, company client quotation PDF/email, exact approval and approved sending. Recommended development settings: GPT-6.1 Sol / Extra High; application runtime AI configuration is independent.
+
+---
+
+# Historical handoff · Phase 5
 
 Phases 1–5 implemented locally on 4–5 October 2026 (Asia/Kuala_Lumpur). Authorization stops after Phase 5. The complete request is preserved in [PHASE_5_BRIEF.md](PHASE_5_BRIEF.md). Previous handoffs below are historical records; their scope statements describe earlier releases.
 

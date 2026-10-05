@@ -16,7 +16,7 @@ class MailboxSync
         $lease = (string) Str::uuid();
         $folder = DB::transaction(function () use ($folderId, $lease): ?MailboxFolder {
             $f = MailboxFolder::whereKey($folderId)->lockForUpdate()->first();
-            if (! $f || ! $f->enabled || ! $f->mailbox->usable() || $f->identity_hash !== $f->mailbox->identity_hash || $f->lease_until?->isFuture() || $f->next_attempt_at?->isFuture()) {
+            if (! $f || ! $f->enabled || ! $f->mailbox->usable() || ! $f->mailbox->incoming_enabled || $f->identity_hash !== $f->mailbox->identity_hash || $f->lease_until?->isFuture() || $f->next_attempt_at?->isFuture()) {
                 return null;
             }
             $f->update(['lease' => $lease, 'lease_until' => now()->addSeconds(360)]);
@@ -27,6 +27,11 @@ class MailboxSync
             return;
         }
         try {
+            if ($folder->mailbox->provider === 'gmail') {
+                app(GmailSync::class)->handle($folder, $lease);
+
+                return;
+            }
             $page = $folder->page;
             if (! $page) {
                 $path = $folder->cursor ?? 'https://graph.microsoft.com/v1.0/users/'.$folder->mailbox_id.'/mailFolders/'.rawurlencode($folder->provider_id).'/messages/delta?'.http_build_query(['$select' => 'id,subject,from,sender,toRecipients,ccRecipients,bccRecipients,replyTo,body,internetMessageId,internetMessageHeaders,receivedDateTime,sentDateTime,conversationId,hasAttachments,isDraft', '$top' => 25]);
@@ -52,7 +57,7 @@ class MailboxSync
             foreach (array_slice($page['value'], $folder->offset, null, true) as $offset => $source) {
                 DB::transaction(function () use ($folder, $lease, $source, $offset): void {
                     $f = MailboxFolder::whereKey($folder->id)->lockForUpdate()->firstOrFail();
-                    if ($f->lease !== $lease || ! $f->mailbox->usable() || $f->identity_hash !== $f->mailbox->identity_hash || ! $f->enabled) {
+                    if ($f->lease !== $lease || ! $f->mailbox->usable() || ! $f->mailbox->incoming_enabled || $f->identity_hash !== $f->mailbox->identity_hash || ! $f->enabled) {
                         throw new GraphFailure(401);
                     }
                     app(MailIngest::class)->handle($f, $source);
@@ -80,7 +85,7 @@ class MailboxSync
                 $f->update(['cursor' => null, 'page' => null, 'offset' => 0, 'import_from' => $boundary->gt($f->import_from) ? $boundary : $f->import_from, 'resync_count' => $f->resync_count + 1, 'enabled' => ! $gap, 'last_error' => $gap ? 'Cursor expired outside the bounded catch-up window or expired repeatedly. Admin must choose an explicit resync boundary; retained business evidence is safe.' : 'Cursor expired. Resynchronizing the bounded interval with immutable-ID deduplication.', 'next_attempt_at' => now()->addMinute()]);
             } else {
                 $count = $f->failure_count + 1;
-                $f->update(['failure_count' => $count, 'enabled' => $count < 6, 'last_error' => $e->getMessage().($count >= 6 ? ' Automatic retries paused after six failures. Admin must review and explicitly resume.' : ''), 'next_attempt_at' => now()->addSeconds($e->retryAfter)]);
+                $f->update(['failure_count' => $count, 'enabled' => $count < 6, 'last_error' => $e->getMessage().($count >= 6 ? ' Automatic retries paused after six failures. Admin must review and explicitly resume.' : ''), 'next_attempt_at' => now()->addSeconds($folder->mailbox->provider === 'gmail' ? max($e->retryAfter, min(3600, 30 * 2 ** min(6, $count - 1))) : $e->retryAfter)]);
                 if (in_array($e->status, [401, 403], true)) {
                     app(Mailboxes::class)->pause($e->getMessage(), $folder->mailbox);
                 }

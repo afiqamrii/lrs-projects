@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\FollowupPlan;
 use App\Models\MailboxConnection;
 use App\Models\MailDispatch;
 use Illuminate\Support\Facades\Cache;
@@ -19,6 +20,23 @@ class MailboxFixture
     public function upload(string $url, string $method, ?string $bytes, ?string $range): array
     {
         return Cache::lock('mailbox-fixture-state', 60)->block(10, fn () => $this->performUpload($url, $method, $bytes, $range));
+    }
+
+    public function loadFollowupResponse(int $planId): void
+    {
+        Cache::lock('mailbox-fixture-state', 60)->block(10, function () use ($planId): void {
+            $c = MailboxConnection::current();
+            $plan = FollowupPlan::findOrFail($planId);
+            abort_unless($c->is_demo && $c->usable() && $plan->inquiry->is_demo && app()->environment('local', 'testing'), 403);
+            $stage = $plan->stages()->where('followup_authorization_id', $plan->authorization_id)->whereHas('envelope.dispatches', fn ($q) => $q->whereIn('status', ['accepted', 'observed']))->latest('id')->firstOrFail();
+            $d = $stage->envelope->dispatches()->latest('id')->firstOrFail();
+            abort_unless($stage->envelope->identity_hash === $c->identity_hash, 422);
+            $state = $this->read();
+            $id = 'fixture-followup-question-'.$d->dispatch_key;
+            $to = $stage->content['to'];
+            $state['messages'][$id] ??= ['id' => $id, 'isDraft' => false, 'internetMessageId' => '<'.$id.'@example.test>', 'subject' => 'Re: '.$stage->content['subject'], 'from' => ['emailAddress' => ['name' => $to['name'], 'address' => $to['email']]], 'toRecipients' => [['emailAddress' => ['address' => $c->target_email]]], 'ccRecipients' => [], 'receivedDateTime' => $plan->clock()->addMinute()->toIso8601String(), 'sentDateTime' => $plan->clock()->addMinute()->toIso8601String(), 'internetMessageHeaders' => [['name' => 'In-Reply-To', 'value' => $d->internet_id]], 'body' => ['contentType' => 'Text', 'content' => "Thank you for following up. Could you confirm the next available departure and the warehouse delivery arrangement?\n\nRegards,\n".$to['name']."\n[Fictional business preview]"], 'hasAttachments' => false, 'attachments' => [], '_direction' => 'incoming'];
+            $this->write($state);
+        });
     }
 
     public function loadIncoming(): void
@@ -64,7 +82,15 @@ class MailboxFixture
         if (preg_match('~/messages(?:/([^/]+))?(.*)$~', $path, $match)) {
             $id = isset($match[1]) ? rawurldecode($match[1]) : null;
             $tail = $match[2] ?? '';
-            if (! $id && $method === 'POST') {
+            if (($tail === '/createReply' && $method === 'POST') || (! $id && $method === 'POST')) {
+                $parent = $id ? ($state['messages'][$id] ?? null) : null;
+                if ($id && ! $parent) {
+                    throw new GraphFailure(404);
+                }
+                if ($parent) {
+                    $data = $data['message'];
+                    $data['conversationId'] = $parent['conversationId'] ?? $parent['id'];
+                }
                 $id = 'fixture-'.Str::uuid();
                 $data += ['id' => $id, 'isDraft' => true, 'internetMessageId' => '<'.$id.'@example.test>', 'sender' => ['emailAddress' => ['address' => $c->send_mode === 'on_behalf' ? $c->account_email : $c->target_email, 'name' => 'Synthetic sender']], 'receivedDateTime' => now()->toIso8601String(), 'attachments' => [], '_direction' => 'outgoing'];
                 $state['messages'][$id] = $data;
@@ -80,6 +106,10 @@ class MailboxFixture
             }
             if (! isset($state['messages'][$id])) {
                 throw new GraphFailure(404);
+            }
+            if ($method === 'PATCH' && $tail === '') {
+                $state['messages'][$id] = array_replace($state['messages'][$id], $data);
+                $this->write($state);
             }
             $m = $state['messages'][$id];
             if ($tail === '/send' && $method === 'POST') {

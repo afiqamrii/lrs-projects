@@ -1,8 +1,8 @@
-@props(['name','label','type'=>'text','value'=>'','hint'=>null,'required'=>false,'review'=>null])
+@props(['name','label','type'=>'text','value'=>'','hint'=>null,'required'=>false,'review'=>null,'id'=>null])
 @php
 $fieldKey=preg_replace('/\[([^\]]+)\]/', '.$1',$name);
 $fieldKey=preg_replace('/\[\]$/','',$fieldKey);
-$fieldId=rtrim(str_replace(['[',']','.'],['-','','-'],$name),'-');
+$fieldId=$id??rtrim(str_replace(['[',']','.'],['-','','-'],$name),'-');
 $hasFieldErrors=$errors->has($fieldKey) || ($type==='file' && $errors->has($fieldKey.'.*'));
 @endphp
 <div><label class="label" for="{{ $fieldId }}">{{ $label }}@if($required)<span class="text-accent" aria-hidden="true"> *</span>@endif</label>

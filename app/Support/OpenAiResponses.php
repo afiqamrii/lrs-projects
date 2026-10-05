@@ -9,11 +9,15 @@ class OpenAiResponses
 {
     public function request(AiRun $run): array
     {
+        if (config('operations.restore_lockdown')) {
+            throw new \RuntimeException('External AI is disabled during restore verification.');
+        }
         $wording = $run->purpose === 'rfq_wording';
+        $quotation = $run->purpose === 'vendor_quotation';
         $response = Http::withToken(config('ai.key'))->acceptJson()->connectTimeout(10)->timeout(config('ai.timeout'))->withOptions(['allow_redirects' => false])->post('https://api.openai.com/v1/responses', [
             'model' => $run->model, 'store' => false, 'max_output_tokens' => (int) $run->settings['max_output_tokens'],
-            'input' => [['role' => 'system', 'content' => ($wording ? RfqWording::prompt() : ProposalSchema::prompt())], ['role' => 'user', 'content' => ($wording ? RfqWording::input($run->sources) : AiSources::input($run->sources))]],
-            'text' => ['format' => ['type' => 'json_schema', 'name' => $wording ? 'rfq_wording_v1' : 'shipment_proposals_v1', 'strict' => true, 'schema' => ($wording ? RfqWording::schema() : ProposalSchema::schema())]],
+            'input' => [['role' => 'system', 'content' => ($quotation ? OfferProposal::prompt() : ($wording ? RfqWording::prompt() : ProposalSchema::prompt()))], ['role' => 'user', 'content' => ($quotation ? OfferProposal::input($run->sources) : ($wording ? RfqWording::input($run->sources) : AiSources::input($run->sources)))]],
+            'text' => ['format' => ['type' => 'json_schema', 'name' => $quotation ? 'vendor_quotation_v1' : ($wording ? 'rfq_wording_v1' : 'shipment_proposals_v1'), 'strict' => true, 'schema' => ($quotation ? OfferProposal::schema() : ($wording ? RfqWording::schema() : ProposalSchema::schema()))]],
             'tools' => [],
         ]);
         $payload = $response->json();
@@ -52,7 +56,9 @@ class OpenAiResponses
             if (! is_array($result)) {
                 throw new \UnexpectedValueException;
             }
-            if ($wording) {
+            if ($quotation) {
+                OfferProposal::validate($result);
+            } elseif ($wording) {
                 RfqWording::validate($result);
             } else {
                 ProposalSchema::validate($result);
@@ -66,6 +72,10 @@ class OpenAiResponses
 
     public function checkModel(string $model): bool
     {
+        if (config('operations.restore_lockdown')) {
+            return false;
+        }
+
         return Http::withToken(config('ai.key'))->acceptJson()->connectTimeout(10)->timeout(15)->withOptions(['allow_redirects' => false])->get('https://api.openai.com/v1/models/'.rawurlencode($model))->successful();
     }
 }

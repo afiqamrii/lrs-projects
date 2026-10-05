@@ -7,6 +7,7 @@ use App\Models\Inquiry;
 use App\Models\MailAttachment;
 use App\Models\MailboxFolder;
 use App\Models\MailMessage;
+use App\Support\GmailMime;
 use App\Support\GraphFailure;
 use App\Support\GraphMail;
 use App\Support\InquiryUploads;
@@ -43,13 +44,14 @@ class ImportMailAttachments implements ShouldQueue
             }
             $path = GraphMail::messages($f->mailbox_id).'/'.rawurlencode($m->provider_id);
             $graph = app(GraphMail::class);
-            $items = $graph->list($f->mailbox, $path.'/attachments?$select=id,name,contentType,size,isInline', 100);
+            $gmail = $f->mailbox->provider === 'gmail';
+            $items = $gmail ? app(GmailMime::class)->attachments($m->source) : $graph->list($f->mailbox, $path.'/attachments?$select=id,name,contentType,size,isInline', 100);
             $total = 0;
             $failures = [];
             foreach ($items as $index => $item) {
                 $a = MailAttachment::firstOrCreate(['mail_message_id' => $m->id, 'provider_id' => $item['id']], ['source' => $item, 'source_hash' => Processing::hash($item), 'name' => InquiryUploads::safeName($item['name'] ?? 'document'), 'mime' => $item['contentType'] ?? 'application/octet-stream', 'size' => $item['size'] ?? 0, 'type' => $item['@odata.type'] ?? 'unknown', 'is_inline' => $item['isInline'] ?? false]);
                 $total += $a->size;
-                if ($index >= config('inquiries.document_limit') || $a->size > config('inquiries.upload_max_kb') * 1024 || $total > config('mailbox.message_attachment_total') || $a->type !== '#microsoft.graph.fileAttachment') {
+                if ($index >= config('inquiries.document_limit') || $a->size > config('inquiries.upload_max_kb') * 1024 || $total > config('mailbox.message_attachment_total') || ! in_array($a->type, ['#microsoft.graph.fileAttachment', 'gmail.file'], true)) {
                     $a->update(['state' => 'unsupported', 'error' => 'Unsupported attachment kind, file size, file count or message total. Original provider metadata retained; reduce/recover the file manually through private documents.']);
                     $failures[] = $a->name;
 
@@ -57,7 +59,7 @@ class ImportMailAttachments implements ShouldQueue
                 }
                 try {
                     if ($a->state !== 'stored') {
-                        $bytes = $graph->call($f->mailbox, 'GET', $path.'/attachments/'.rawurlencode($a->provider_id).'/$value');
+                        $bytes = $gmail ? app(GmailMime::class)->attachment($f->mailbox, $m->provider_id, $a->source['gmail_part']) : $graph->call($f->mailbox, 'GET', $path.'/attachments/'.rawurlencode($a->provider_id).'/$value');
                         if (strlen($bytes) > config('inquiries.upload_max_kb') * 1024 || strlen($bytes) !== $a->size) {
                             throw new \RuntimeException('Attachment byte length differs from metadata');
                         }

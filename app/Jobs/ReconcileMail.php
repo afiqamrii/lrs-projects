@@ -3,8 +3,8 @@
 namespace App\Jobs;
 
 use App\Actions\MailOutbox;
-use App\Models\MailboxConnection;
 use App\Models\MailDispatch;
+use App\Support\GmailMail;
 use App\Support\GraphFailure;
 use App\Support\GraphMail;
 use App\Support\Mailboxes;
@@ -28,7 +28,7 @@ class ReconcileMail implements ShouldQueue
         $lease = (string) Str::uuid();
         $d = DB::transaction(function () use ($lease): ?MailDispatch {
             $d = MailDispatch::whereKey($this->dispatchId)->lockForUpdate()->first();
-            if (! $d || ! in_array($d->status, ['accepted', 'uncertain', 'submitting', 'observed'], true) || $d->lease_until?->isFuture() || ! MailboxConnection::current()->usable()) {
+            if (! $d || ! in_array($d->status, ['accepted', 'uncertain', 'submitting', 'observed'], true) || $d->lease_until?->isFuture() || ! $d->envelope->mailbox->usable()) {
                 return null;
             }
             $d->update(['lease' => $lease, 'lease_until' => now()->addSeconds(180), 'reconcile_attempts' => $d->reconcile_attempts + 1]);
@@ -39,13 +39,37 @@ class ReconcileMail implements ShouldQueue
             return;
         }
         try {
-            $c = MailboxConnection::current();
+            $c = $d->envelope->mailbox;
             $env = $d->envelope->snapshot['envelope'];
             if ($d->envelope->identity_hash !== $c->identity_hash) {
                 throw new GraphFailure(401);
             }
             $graph = app(GraphMail::class);
             $items = [];
+            if ($c->provider === 'gmail') {
+                $sent = app(GmailMail::class)->sent($c, $d);
+                if ($sent) {
+                    $m = reset($sent);
+                    MailDispatch::whereKey($d->id)->where('lease', $lease)->update(['status' => 'observed', 'observed_at' => now(), 'provider_sent_id' => $m['id'], 'provider_thread_id' => $m['threadId'], 'last_error' => null, 'next_attempt_at' => null]);
+                    app(MailOutbox::class)->event($d, 'sent_item_observed', 'Exact Gmail SENT message observed. Delivery and reading remain unconfirmed.');
+                } else {
+                    $draft = app(GmailMail::class)->draft($c, $d);
+                    if ($draft) {
+                        $values = ['provider_draft_id' => $draft['id'], 'provider_draft_message_id' => $draft['message']['id'], 'provider_thread_id' => $draft['message']['threadId'] ?? null];
+                        if (! $d->submission_started_at) {
+                            $values += ['status' => 'failed', 'last_error' => 'Exact unsent Gmail draft located after interrupted creation. No send was attempted. Staff may explicitly retry safe preparation using this existing container.', 'next_attempt_at' => null];
+                            MailDispatch::whereKey($d->id)->where('lease', $lease)->update($values);
+                            app(MailOutbox::class)->event($d, 'draft_located', 'Existing exact draft located. No automatic send; explicit safe preparation recovery is required.');
+
+                            return;
+                        }
+                        MailDispatch::whereKey($d->id)->where('lease', $lease)->update($values);
+                    }
+                    MailDispatch::whereKey($d->id)->where('lease', $lease)->update(['status' => $d->status === 'submitting' ? 'uncertain' : $d->status, 'last_error' => 'No conclusive Gmail SENT evidence. A missing draft may have been deleted; it does not authorize another send.', 'next_attempt_at' => $d->reconcile_attempts < 10 ? now()->addMinutes(2) : null]);
+                }
+
+                return;
+            }
             if ($d->provider_draft_id) {
                 try {
                     $item = $graph->call($c, 'GET', GraphMail::messages($env['target_id']).'/'.rawurlencode($d->provider_draft_id).'?$select=id,isDraft,internetMessageId,from,sender');

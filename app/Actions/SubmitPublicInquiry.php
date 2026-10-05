@@ -11,6 +11,7 @@ use App\Support\Audit;
 use App\Support\InquiryWorkflow;
 use App\Support\PublicIntake;
 use App\Support\Shipment;
+use App\Support\WorkspaceData;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -38,7 +39,7 @@ class SubmitPublicInquiry
                     'owner_id' => $settings->public_intake_owner_id && User::whereKey($settings->public_intake_owner_id)->where('is_active', true)->exists() ? $settings->public_intake_owner_id : null,
                     'title' => mb_substr($data['shipment']['origin_location'].' → '.$data['shipment']['destination_location'], 0, 255),
                     'priority' => 'normal', 'status' => 'needs_review', 'received_at' => now(),
-                    'response_due_at' => null, 'source_channel' => 'website', 'is_demo' => str_ends_with($contact['email'], '@example.test'), 'public_contact' => $contact,
+                    'response_due_at' => null, 'source_channel' => 'website', 'is_demo' => WorkspaceData::exampleEmail($contact['email']), 'public_contact' => $contact,
                     'original_source_text' => $data['additional_notes'] ?? null,
                     'shipment' => Shipment::normalize($data['shipment'], true),
                     'shipment_revision' => 1, 'lock_version' => 0,

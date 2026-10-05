@@ -15,6 +15,6 @@ class MailReviewRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['lock_version' => ['required', 'integer', 'min:0'], 'decision' => ['required', Rule::in(['associate', 'new', 'unmatched', 'ignore'])], 'classification' => ['required', Rule::in(array_keys(MailMessage::CLASSES))], 'inquiry_id' => ['required_if:decision,associate', 'nullable', 'integer', 'exists:inquiries,id'], 'rfq_revision_id' => ['nullable', 'integer', 'exists:rfq_revisions,id'], 'reason' => ['required', 'string', 'max:2000']];
+        return ['lock_version' => ['required', 'integer', 'min:0'], 'decision' => ['required', Rule::in(['associate', 'new', 'unmatched', 'ignore'])], 'classification' => ['required', Rule::in(array_keys(MailMessage::CLASSES))], 'inquiry_id' => ['required_if:decision,associate', 'nullable', 'integer', 'exists:inquiries,id'], 'rfq_revision_id' => ['nullable', 'integer', 'exists:rfq_revisions,id'], 'client_quotation_revision_id' => ['nullable', 'integer', 'exists:client_quotation_revisions,id'], 'operational_message_id' => ['nullable', 'integer', 'exists:operational_messages,id'], 'reason' => ['required', 'string', 'max:2000']];
     }
 }

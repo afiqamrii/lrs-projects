@@ -7,6 +7,7 @@ use App\Http\Requests\VendorRequest;
 use App\Models\AuditEntry;
 use App\Models\Vendor;
 use App\Support\Audit;
+use App\Support\WorkspaceData;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,9 @@ class VendorController extends Controller
     {
         Gate::authorize('viewAny', Vendor::class);
         $filters = $request->validate(['q' => ['nullable', 'string', 'max:200'], 'status' => ['nullable', Rule::in(['active', 'inactive'])], 'type' => ['nullable', Rule::in(array_keys(Vendor::TYPES))], 'service' => ['nullable', Rule::in(Vendor::SERVICES)], 'contact' => ['nullable', Rule::in(['missing', 'ready'])]]);
+        if (WorkspaceData::preview() && ! $request->has('status')) {
+            $filters['status'] = 'active';
+        }
         $query = Vendor::with('primaryContact')->withCount('contacts');
         if ($q = $filters['q'] ?? null) {
             $pattern = '%'.str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $q).'%';

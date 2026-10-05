@@ -7,6 +7,7 @@ use App\Http\Requests\ClientRequest;
 use App\Models\AuditEntry;
 use App\Models\Client;
 use App\Support\Audit;
+use App\Support\WorkspaceData;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,9 @@ class ClientController extends Controller
     {
         Gate::authorize('viewAny', Client::class);
         $filters = $request->validate(['q' => ['nullable', 'string', 'max:150'], 'status' => ['nullable', Rule::in(['active', 'archived'])], 'contact' => ['nullable', Rule::in(['ready', 'missing'])]]);
+        if (WorkspaceData::preview() && ! $request->has('status')) {
+            $filters['status'] = 'active';
+        }
         $query = Client::with('primaryContact')->withCount('inquiries');
         if ($q = $filters['q'] ?? null) {
             $pattern = '%'.str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $q).'%';

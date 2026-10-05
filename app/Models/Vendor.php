@@ -17,11 +17,11 @@ class Vendor extends Model
 
     public const CHANNELS = ['email' => 'Email', 'phone' => 'Phone', 'whatsapp' => 'WhatsApp', 'other' => 'Other'];
 
-    protected $fillable = ['company_name', 'display_name', 'type', 'services', 'coverage', 'minimum_notes', 'communication_channel', 'internal_notes', 'is_active'];
+    protected $fillable = ['is_demo', 'company_name', 'display_name', 'type', 'services', 'coverage', 'minimum_notes', 'communication_channel', 'internal_notes', 'is_active'];
 
     protected function casts(): array
     {
-        return ['services' => 'array', 'is_active' => 'boolean'];
+        return ['services' => 'array', 'is_active' => 'boolean', 'is_demo' => 'boolean'];
     }
 
     public function contacts(): HasMany
@@ -31,6 +31,6 @@ class Vendor extends Model
 
     public function primaryContact(): HasOne
     {
-        return $this->hasOne(Contact::class)->where('is_primary', true);
+        return $this->hasOne(Contact::class)->where('is_primary', true)->where('is_active', true);
     }
 }

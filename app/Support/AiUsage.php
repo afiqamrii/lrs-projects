@@ -14,6 +14,9 @@ class AiUsage
 {
     public static function scope(array $sources, AiSetting $settings, string $purpose = 'shipment_proposals'): string
     {
+        if ($purpose === 'vendor_quotation') {
+            return Processing::hash(['purpose' => $purpose, 'sources' => $sources, 'model' => $settings->model, 'settings' => $settings->configuration, 'output' => config('ai.output_tokens'), 'prompt_hash' => hash('sha256', OfferProposal::prompt()), 'schema_hash' => Processing::hash(OfferProposal::schema())]);
+        }
         if ($purpose === 'rfq_wording') {
             return Processing::hash(['purpose' => $purpose, 'sources' => $sources, 'model' => $settings->model, 'settings' => $settings->configuration, 'output' => config('ai.output_tokens'), 'prompt_hash' => hash('sha256', RfqWording::prompt()), 'schema_hash' => Processing::hash(RfqWording::schema())]);
         }
@@ -25,6 +28,9 @@ class AiUsage
 
     public static function bound(array $sources, string $purpose = 'shipment_proposals'): int
     {
+        if ($purpose === 'vendor_quotation') {
+            return strlen(OfferProposal::input($sources)) + strlen(OfferProposal::prompt()) + strlen(json_encode(OfferProposal::schema(), JSON_THROW_ON_ERROR)) + 4096;
+        }
         if ($purpose === 'rfq_wording') {
             return strlen(RfqWording::input($sources)) + strlen(RfqWording::prompt()) + strlen(json_encode(RfqWording::schema(), JSON_THROW_ON_ERROR)) + 4096;
         }

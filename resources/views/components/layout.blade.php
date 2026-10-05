@@ -9,6 +9,8 @@
 <a href="{{ route('profile') }}" class="flex shrink-0 items-center gap-3 rounded-xl py-2" aria-label="My profile: {{ auth()->user()->name }}"><span class="hidden text-right sm:block"><span class="block max-w-40 truncate text-xs font-medium">{{ auth()->user()->name }}</span><span class="block text-[11px] capitalize text-slate-500">{{ auth()->user()->role }}</span></span><span class="avatar !h-9 !w-9 !rounded-full">{{ mb_strtoupper(mb_substr(auth()->user()->name,0,2)) }}</span></a>
 </header>
 <main id="main-content" tabindex="-1" class="mx-auto max-w-[1480px] p-5 pb-12 sm:p-9">
+@if($company->workspace_data_mode==='samples')<div class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#d9e7fb] bg-[#edf4ff] px-5 py-4 text-xs leading-6"><p><strong>Business preview</strong> · Fictional companies, shipments and prices.</p><a class="text-link" href="{{ route('inquiries.index',['data'=>'real']) }}">Real incoming records →</a></div>@endif
+@if($company->outbound_paused || config('operations.restore_lockdown'))<div class="alert alert-warning mb-6"><x-icon name="warning-circle" /><p><strong>Outgoing business mail paused.</strong> Incoming capture and manual review remain available. Earlier queued requests require explicit recovery and reminder plans require a new activation after resumption.@can('manage-company') <a class="text-link" href="{{ route('operations.health') }}">Review controls →</a>@endcan</p></div>@endif
 <x-flash />{{ $slot }}
 <footer class="mt-10 flex flex-wrap justify-between gap-3 border-t border-slate-200 pt-5 text-[11px] text-slate-500"><span>LRS · Logistics operations, thoughtfully organized</span><span>Times displayed in {{ $company->timezone }}</span></footer>
 </main></div>

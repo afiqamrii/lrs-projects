@@ -18,7 +18,7 @@ class MailDispatch extends Model
 
     protected function casts(): array
     {
-        return ['upload_state' => 'encrypted:array', 'is_demo' => 'boolean', 'attempts' => 'integer', 'reconcile_attempts' => 'integer', 'requested_at' => 'immutable_datetime', 'lease_until' => 'immutable_datetime', 'next_attempt_at' => 'immutable_datetime', 'draft_started_at' => 'immutable_datetime', 'submission_started_at' => 'immutable_datetime', 'accepted_at' => 'immutable_datetime', 'observed_at' => 'immutable_datetime', 'cancel_requested_at' => 'immutable_datetime'];
+        return ['outbound_epoch' => 'integer', 'upload_state' => 'encrypted:array', 'is_demo' => 'boolean', 'attempts' => 'integer', 'reconcile_attempts' => 'integer', 'requested_at' => 'immutable_datetime', 'lease_until' => 'immutable_datetime', 'next_attempt_at' => 'immutable_datetime', 'draft_started_at' => 'immutable_datetime', 'submission_started_at' => 'immutable_datetime', 'accepted_at' => 'immutable_datetime', 'observed_at' => 'immutable_datetime', 'cancel_requested_at' => 'immutable_datetime'];
     }
 
     public function envelope(): BelongsTo

@@ -1,9 +1,9 @@
 <x-layout title="Client clarification">
-<x-page-header :title="'Clarification · '.$inquiry->reference" eyebrow="Approved client communication" description="Review and approve the exact message and recipient before manual communication or explicit Outlook release."><x-button variant="secondary" :href="route('inquiries.show',$inquiry)">Back to inquiry</x-button></x-page-header>
+<x-page-header :title="'Clarification · '.$inquiry->reference" eyebrow="Approved client communication" description="Review and approve the exact message and recipient before manual communication or explicitly approved email release."><x-button variant="secondary" :href="route('inquiries.show',$inquiry)">Back to inquiry</x-button></x-page-header>
 @php($current=$clarification->currentFor($inquiry))
 @php($mailDispatch=$clarification->outlookDispatch())
 @include('mail.release-status',['dispatch'=>$mailDispatch])
-@if($clarification->approved_at)<a class="btn btn-secondary mb-6" href="{{ route('mail.preview',['clarification',$clarification->id]) }}">Outlook preview & dispatch history</a>@endif
+@if($clarification->approved_at)<a class="btn btn-secondary mb-6" href="{{ route('mail.preview',['clarification',$clarification->id]) }}">Email preview & dispatch history</a>@endif
 <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]"><section class="panel panel-pad min-w-0"><div class="mb-6 flex flex-wrap items-center gap-3"><span class="badge {{ $clarification->status==='approved'?'badge-active':'badge-inactive' }}">{{ ucfirst($clarification->status) }}</span><span class="text-xs text-slate-500">Shipment revision {{ $clarification->shipment_revision }} · {{ $clarification->recipient_email }}</span></div>
 @if(!$current)<div class="alert alert-warning mb-6">Shipment or recipient details have changed. This message is retained as evidence; prepare a fresh clarification for the working revision.</div>@endif
 @if($clarification->status==='draft'&&$current&&$inquiry->status!=='closed')

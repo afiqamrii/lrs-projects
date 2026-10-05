@@ -22,6 +22,16 @@ class MailEnvelope extends Model
         return ['snapshot' => 'encrypted:array', 'authorized_at' => 'immutable_datetime'];
     }
 
+    public function operationalMessageApproval(): BelongsTo
+    {
+        return $this->belongsTo(OperationalMessageApproval::class);
+    }
+
+    public function followupStage(): BelongsTo
+    {
+        return $this->belongsTo(FollowupStage::class);
+    }
+
     public function authorizer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'authorized_by');
@@ -45,5 +55,15 @@ class MailEnvelope extends Model
     public function dispatches(): HasMany
     {
         return $this->hasMany(MailDispatch::class);
+    }
+
+    public function clientQuotationApproval(): BelongsTo
+    {
+        return $this->belongsTo(ClientQuotationApproval::class);
+    }
+
+    public function mailbox(): BelongsTo
+    {
+        return $this->belongsTo(MailboxConnection::class, 'mailbox_connection_id');
     }
 }

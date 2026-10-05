@@ -36,6 +36,9 @@ class TransitionInquiry
             $record->status_reason = in_array($target, ['on_hold', 'closed'], true) ? $data['reason'] : null;
             $record->lock_version++;
             $record->save();
+            if (in_array($target, ['on_hold', 'closed', 'reopen', 'resume'], true)) {
+                app(ManageLifecycle::class)->stop($record, 'Inquiry status transition: '.$target.' · '.($data['reason'] ?? 'Renew eligibility checks.'), auth()->user());
+            }
             Audit::record(match ($target) {
                 'ready_for_sourcing' => 'Shipment confirmed','resume' => 'Inquiry resumed for review','reopen' => 'Inquiry reopened for review',default => 'Inquiry status changed'
             }, $record, $before, null, null, $details + ($target === 'reopen' ? ['reopen_reason' => ['before' => null, 'after' => $data['reason']]] : []));

@@ -4,6 +4,7 @@ namespace App\Actions;
 
 use App\Jobs\DispatchMail;
 use App\Jobs\ReconcileMail;
+use App\Models\CompanySetting;
 use App\Models\MailboxConnection;
 use App\Models\MailDispatch;
 use App\Models\MailEnvelope;
@@ -21,14 +22,14 @@ class MailOutbox
         return DB::transaction(function () use ($kind, $id, $staff, $digest): MailEnvelope {
             $release = app(MailRelease::class);
             $source = $release->source($kind, $id, $staff, true);
-            $c = MailboxConnection::whereKey(MailboxConnection::current()->id)->lockForUpdate()->firstOrFail();
+            $c = MailboxConnection::whereKey($release->connection($source)->id)->lockForUpdate()->firstOrFail();
             $snapshot = $release->preview($source, $c);
             $hash = Processing::hash($snapshot);
             if (! hash_equals($digest, $hash)) {
                 $release->fail('The final preview changed. Reload and review the exact sender, content and files.');
             }
-            $e = MailEnvelope::firstOrCreate(['source_key' => $source['key'], 'identity_hash' => $c->identity_hash, 'digest' => $hash, 'authorized_by' => $staff->id], ['rfq_approval_id' => $source['rfq_approval_id'], 'clarification_id' => $source['clarification_id'], 'inquiry_id' => $source['inquiry_id'], 'content_digest' => $source['digest'], 'snapshot' => $snapshot, 'authorized_by' => $staff->id, 'authorizer_name' => $staff->name, 'authorized_at' => now()]);
-            Audit::record('Exact Outlook envelope authorized', $e, actor: $staff, details: ['authorization' => ['before' => null, 'after' => ['digest' => $e->digest, 'fixture' => $c->is_demo]]]);
+            $e = MailEnvelope::firstOrCreate(['source_key' => $source['key'], 'identity_hash' => $c->identity_hash, 'digest' => $hash, 'authorized_by' => $staff->id], ['mailbox_connection_id' => $c->id, 'operational_message_approval_id' => $source['operational_message_approval_id'] ?? null, 'followup_stage_id' => $source['followup_stage_id'] ?? null, 'client_quotation_approval_id' => $source['client_quotation_approval_id'] ?? null, 'rfq_approval_id' => $source['rfq_approval_id'], 'clarification_id' => $source['clarification_id'], 'inquiry_id' => $source['inquiry_id'], 'content_digest' => $source['digest'], 'snapshot' => $snapshot, 'authorized_by' => $staff->id, 'authorizer_name' => $staff->name, 'authorized_at' => now()]);
+            Audit::record('Exact mailbox envelope authorized', $e, actor: $staff, details: ['authorization' => ['before' => null, 'after' => ['digest' => $e->digest, 'fixture' => $c->is_demo]]]);
 
             return $e;
         });
@@ -53,8 +54,8 @@ class MailOutbox
             if (MailDispatch::where('source_key', $envelope->source_key)->where('status', '!=', 'cancelled')->exists()) {
                 $release->fail('This approval already has a dispatch. Inspect its status; do not send again. A deliberate resend needs a newly approved revision.');
             }
-            $d = MailDispatch::create(['dispatch_key' => $key, 'mail_envelope_id' => $envelope->id, 'source_key' => $envelope->source_key, 'is_demo' => $envelope->snapshot['envelope']['is_demo'], 'requested_by' => $staff->id, 'requested_at' => now()]);
-            $this->event($d, 'queued', 'Explicit staff request. Connecting/approving alone never sends.', $staff);
+            $d = MailDispatch::create(['dispatch_key' => $key, 'mail_envelope_id' => $envelope->id, 'source_key' => $envelope->source_key, 'is_demo' => $envelope->snapshot['envelope']['is_demo'], 'requested_by' => $staff->id, 'requested_at' => now(), 'outbound_epoch' => CompanySetting::current()->outbound_epoch]);
+            $this->event($d, 'queued', $envelope->followup_stage_id ? 'Exact reminder covered by a bounded staff activation or per-message approval.' : 'Explicit staff request. Connecting/approving alone never sends.', $staff);
             DispatchMail::dispatch($d->id)->onQueue('mail')->afterCommit();
 
             return $d;
@@ -71,7 +72,7 @@ class MailOutbox
                 $this->event($d, 'late_cancellation', 'Submission started. Cancellation cannot recall this message. Reconcile provider evidence.', $staff);
             } else {
                 $d->update(['status' => 'cancelled', 'lease' => null, 'lease_until' => null]);
-                $this->event($d, 'cancelled', 'Cancelled before submission. A provider draft may remain unsent; review Outlook drafts before a new explicit request.', $staff);
+                $this->event($d, 'cancelled', 'Cancelled before submission. A provider draft may remain unsent; review provider drafts before a new explicit request.', $staff);
             }
         });
     }
@@ -88,8 +89,8 @@ class MailOutbox
                 return;
             }
             if ($d->status === 'failed') {
-                app(MailRelease::class)->preflight($d->envelope, $staff);
-                $d->update(['status' => $d->provider_draft_id ? 'preparing' : 'queued', 'attempts' => 0, 'next_attempt_at' => null, 'last_error' => null]);
+                app(MailRelease::class)->preflight($d->envelope, $staff, true);
+                $d->update(['outbound_epoch' => CompanySetting::current()->outbound_epoch, 'status' => $d->provider_draft_id ? 'preparing' : 'queued', 'attempts' => 0, 'next_attempt_at' => null, 'last_error' => null]);
                 $this->event($d, 'preparation_retry', $reason, $staff);
                 DispatchMail::dispatch($d->id)->onQueue('mail')->afterCommit();
             }
@@ -99,6 +100,6 @@ class MailOutbox
     public function event(MailDispatch $dispatch, string $kind, string $note, ?User $staff = null): void
     {
         DB::table('mail_events')->insert(['mail_dispatch_id' => $dispatch->id, 'actor_id' => $staff?->id, 'kind' => $kind, 'note' => $note, 'created_at' => now()]);
-        Audit::record('Outlook dispatch '.$kind, $dispatch, actor: $staff, details: ['mail_state' => ['before' => null, 'after' => ['state' => $kind, 'note' => $note]]], systemActor: $staff ? null : 'System / mailbox');
+        Audit::record('Mailbox dispatch '.$kind, $dispatch, actor: $staff, details: ['mail_state' => ['before' => null, 'after' => ['state' => $kind, 'note' => $note]]], systemActor: $staff ? null : 'System / mailbox');
     }
 }
